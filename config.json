@@ -1,0 +1,30 @@
+{
+	"name": "Randapi",
+
+	"namespace": "gadeynebram\\Randapi",
+
+	"description": "An API to export randomization functionalities and perform additional actions associated with randomization.",
+
+	"versions": [
+		{"0.0.1": "exploring redcap functionality"}
+	],
+
+	"authors": [
+		{
+			"name": "Bram Gadeyne",
+			"email": "bram.gadeyne@uzgent.be",
+			"institution": "Ghent University Hospital"
+		}
+	],
+
+	"permissions": [
+		"redcap_save_record"
+	],
+
+	"links": [
+	],
+
+	"no-auth-pages": [
+		"api"
+	]
+}
