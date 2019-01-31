@@ -2,6 +2,8 @@
 namespace gadeynebram\Randapi;
 
 use ExternalModules\AbstractExternalModule;
+use Exception;
+use Randomization;
 
 class Randapi extends AbstractExternalModule
 {
@@ -26,9 +28,11 @@ class Randapi extends AbstractExternalModule
 
         // url contains version
         // https://example.com/redcap/redcap_vX.X.X/ExternalModules/
-        preg_match('/(?P<version>redcap_v\d+\.\d+\.\d+)\/ExternalModules/',$this->getUrl("test"),$matches);
+        $url = $_SERVER["SCRIPT_NAME"];
+        preg_match('/(?P<version>redcap_v\d+\.\d+\.\d+)\/ExternalModules/',$url,$matches);
         if(key_exists("version",$matches)){
             $redcap_version = $matches["version"];
+            error_log("Found version $redcap_version");
             $classesPath = __DIR__.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.$redcap_version.DIRECTORY_SEPARATOR."Classes".DIRECTORY_SEPARATOR;
             require_once($classesPath."Randomization.php");
             require_once(__DIR__.DIRECTORY_SEPARATOR.'RandomizationField.php');
@@ -66,7 +70,7 @@ class Randapi extends AbstractExternalModule
                 // retrieve randomization value (target_field)
                 $query = "select target_field from redcap.redcap_randomization_allocation rra where rra.aid = $aid";
 
-                $randomizationQueryResult = $this->query($this->conn,$query);
+                $randomizationQueryResult = $this->query($query);
                 $randomizationResult = false;
                 if($row = $randomizationQueryResult->fetch_assoc()){
                     $randomizationResult = $row["target_field"];
@@ -84,7 +88,7 @@ class Randapi extends AbstractExternalModule
                         md.descrip = 'Event 1'
                     where a.project_id = 20 and
                         a.arm_name='Arm 1';";
-                    if($this->query($this->conn, $query)){
+                    if($this->query($query)){
                         error_log("Randomization result $randomizationResult for aid $aid successfully saved in record");
                         return $randomizationResult;
                     }else{
@@ -101,7 +105,7 @@ class Randapi extends AbstractExternalModule
                 throw new Exception("Standard Randomization class could not randomize record");
             }
         }else{
-            error_log("Could not find redcap version");
+            error_log("Could not find redcap version in $url");
             throw new Exception("Standard Randomization class could not randomize record");
         }
 
