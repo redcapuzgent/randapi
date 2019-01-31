@@ -4,7 +4,7 @@
 
 require_once(__DIR__ . "/RandomizationAllocation.php");
 
-use gadeynebram\Randapi\RandomizationAllocation;
+use redcapuzgent\Randapi\RandomizationAllocation;
 
 try{
 
@@ -19,7 +19,7 @@ try{
     // define project_status = 0 when project is in development.
     $project_status = 0;
 
-    /* @var $module \gadeynebram\Randapi\Randapi*/
+    /* @var $module \redcapuzgent\Randapi\Randapi*/
     $project_id = $module->getProjectId();
 
     $ridQuery = "select rid from redcap.redcap_randomization where project_id = $project_id";

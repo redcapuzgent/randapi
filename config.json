@@ -1,7 +1,7 @@
 {
 	"name": "Randapi",
 
-	"namespace": "gadeynebram\\Randapi",
+	"namespace": "redcapuzgent\\Randapi",
 
 	"description": "An API to export randomization functionalities and perform additional actions associated with randomization.",
 

@@ -1,6 +1,6 @@
 <?php
 
-namespace gadeynebram\Randapi;
+namespace redcapuzgent\Randapi;
 
 class RandomizationField
 {

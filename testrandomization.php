@@ -4,13 +4,13 @@ require_once(__DIR__.DIRECTORY_SEPARATOR."vendor/autoload.php");
 require_once(__DIR__.DIRECTORY_SEPARATOR . "RandomizationField.php");
 
 use IU\PHPCap\RedCapProject;
-use gadeynebram\Randapi\RandomizationField;
+use redcapuzgent\Randapi\RandomizationField;
 
 
 try {
 
     $token = $_GET["token"];
-    /* @var $module \gadeynebram\Randapi\Randapi*/
+    /* @var $module \redcapuzgent\Randapi\Randapi*/
     $apiUrl = "https://".$_SERVER['HTTP_HOST']."/api/"; //$module->getUrl("",true, true);
 
     error_log("retrieved token $token and url $apiUrl");

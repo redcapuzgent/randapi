@@ -1,5 +1,5 @@
 <?php
-namespace gadeynebram\Randapi;
+namespace redcapuzgent\Randapi;
 
 use ExternalModules\AbstractExternalModule;
 use Exception;
