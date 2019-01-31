@@ -24,91 +24,79 @@ class Randapi extends AbstractExternalModule
      * @throws Exception
      */
     function randomizeRecord($recordId,$projectId,$fields=array(),$resultFieldName,$group_id='',$arm_name='Arm 1', $event_name='Event 1'){
-        // set globals required for  Randomization::getRandomizationFields
+        // set globals required for  Randomization::getRandomizationFields;
+        global $redcap_version;
+        $classesPath = __DIR__.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR."redcap_v$redcap_version".DIRECTORY_SEPARATOR."Classes".DIRECTORY_SEPARATOR;
+        require_once($classesPath."Randomization.php");
+        require_once(__DIR__.DIRECTORY_SEPARATOR.'RandomizationField.php');
 
-        // url contains version
-        // https://example.com/redcap/redcap_vX.X.X/ExternalModules/
-        $url = $_SERVER["SCRIPT_NAME"];
-        preg_match('/(?P<version>redcap_v\d+\.\d+\.\d+)\/ExternalModules/',$url,$matches);
-        if(key_exists("version",$matches)){
-            $redcap_version = $matches["version"];
-            error_log("Found version $redcap_version");
-            $classesPath = __DIR__.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.$redcap_version.DIRECTORY_SEPARATOR."Classes".DIRECTORY_SEPARATOR;
-            require_once($classesPath."Randomization.php");
-            require_once(__DIR__.DIRECTORY_SEPARATOR.'RandomizationField.php');
+        if(!defined(PROJECT_ID)){
+            error_log("defining project id");
+            define(PROJECT_ID,$this->getProjectId());
+        }else{
+            error_log("project id was already defined");
+        }
+        global $longitudinal;
+        if(!isset($longitudinal)){
+            error_log("defining longitudinal");
+            $proj = new Project($projectId, true);
+            $longitudinal = $proj->longitudinal;
+        }else{
+            error_log("longitudinal was already defined");
+        }
+        // set globals required for Randomization::randomizeRecord()
+        global $status;
+        if(!isset($status)){
+            error_log("defining status");
+            Randomization::wasRecordRandomized($recordId);
+        }else{
+            error_log("status was already defined");
+        }
+        // calls getRandomizationFields
+        $tfields = array();
+        foreach($fields as $field) {
+            $tfields[$field->getKey()] = $field->getValue();
+        }
+        error_log("randomizing using fields ".print_r($tfields,true));
+        $aid =  Randomization::randomizeRecord($recordId,$tfields,$group_id);
+        if($aid){
+            // retrieve randomization value (target_field)
+            $query = "select target_field from redcap.redcap_randomization_allocation rra where rra.aid = $aid";
 
-            if(!defined(PROJECT_ID)){
-                error_log("defining project id");
-                define(PROJECT_ID,$this->getProjectId());
-            }else{
-                error_log("project id was already defined");
+            $randomizationQueryResult = $this->query($query);
+            $randomizationResult = false;
+            if($row = $randomizationQueryResult->fetch_assoc()){
+                $randomizationResult = $row["target_field"];
             }
-            global $longitudinal;
-            if(!isset($longitudinal)){
-                error_log("defining longitudinal");
-                $proj = new Project($projectId, true);
-                $longitudinal = $proj->longitudinal;
-            }else{
-                error_log("longitudinal was already defined");
-            }
-            // set globals required for Randomization::randomizeRecord()
-            global $status;
-            if(!isset($status)){
-                error_log("defining status");
-                Randomization::wasRecordRandomized($recordId);
-            }else{
-                error_log("status was already defined");
-            }
-            // calls getRandomizationFields
-            $tfields = array();
-            foreach($fields as $field) {
-                $tfields[$field->getKey()] = $field->getValue();
-            }
-            error_log("randomizing using fields ".print_r($tfields,true));
-            $aid =  Randomization::randomizeRecord($recordId,$tfields,$group_id);
-            if($aid){
-                // retrieve randomization value (target_field)
-                $query = "select target_field from redcap.redcap_randomization_allocation rra where rra.aid = $aid";
-
-                $randomizationQueryResult = $this->query($query);
-                $randomizationResult = false;
-                if($row = $randomizationQueryResult->fetch_assoc()){
-                    $randomizationResult = $row["target_field"];
-                }
-                $randomizationQueryResult->close();
-                if($randomizationResult){
-                    // The randomization result cannot be changed so an insert should not fail because of an duplicate row exception.
-                    // The API cannot be used to insert the randomization result
-                    $query = "
-                    insert into redcap.redcap_data(project_id, event_id, record, field_name, `value`)
-                    select $projectId as project_id, md.event_id, '$recordId' as record, '$resultFieldName' as field_name, '$randomizationResult' as `value`
-                    from redcap.redcap_events_arms a
-                    join redcap.redcap_events_metadata md on 
-                        a.arm_id = md.arm_id and
-                        md.descrip = 'Event 1'
-                    where a.project_id = 20 and
-                        a.arm_name='Arm 1';";
-                    if($this->query($query)){
-                        error_log("Randomization result $randomizationResult for aid $aid successfully saved in record");
-                        return $randomizationResult;
-                    }else{
-                        $msg = "Could not save randomization result $randomizationResult for aid $aid. ".mysqli_error($this->conn);
-                        error_log($msg);
-                        throw new Exception($msg);
-                    }
-                }else {
-                    $msg = "No result found for aid $aid";
+            $randomizationQueryResult->close();
+            if($randomizationResult){
+                // The randomization result cannot be changed so an insert should not fail because of an duplicate row exception.
+                // The API cannot be used to insert the randomization result
+                $query = "
+                insert into redcap.redcap_data(project_id, event_id, record, field_name, `value`)
+                select $projectId as project_id, md.event_id, '$recordId' as record, '$resultFieldName' as field_name, '$randomizationResult' as `value`
+                from redcap.redcap_events_arms a
+                join redcap.redcap_events_metadata md on 
+                    a.arm_id = md.arm_id and
+                    md.descrip = 'Event 1'
+                where a.project_id = 20 and
+                    a.arm_name='Arm 1';";
+                if($this->query($query)){
+                    error_log("Randomization result $randomizationResult for aid $aid successfully saved in record");
+                    return $randomizationResult;
+                }else{
+                    $msg = "Could not save randomization result $randomizationResult for aid $aid. ".mysqli_error($this->conn);
                     error_log($msg);
                     throw new Exception($msg);
                 }
-            }else{
-                throw new Exception("Standard Randomization class could not randomize record");
+            }else {
+                $msg = "No result found for aid $aid";
+                error_log($msg);
+                throw new Exception($msg);
             }
         }else{
-            error_log("Could not find redcap version in $url");
             throw new Exception("Standard Randomization class could not randomize record");
         }
-
     }
 
     /**
