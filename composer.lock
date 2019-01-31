@@ -1,0 +1,60 @@
+{
+    "_readme": [
+        "This file locks the dependencies of your project to a known state",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
+        "This file is @generated automatically"
+    ],
+    "content-hash": "c9276a4598b2906a38940e71eac856a1",
+    "packages": [
+        {
+            "name": "phpcap/phpcap",
+            "version": "0.3.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/aarenson/PHPCap.git",
+                "reference": "bc28965391bd40cc34ba4e33f7fb755d138e7dee"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/aarenson/PHPCap/zipball/bc28965391bd40cc34ba4e33f7fb755d138e7dee",
+                "reference": "bc28965391bd40cc34ba4e33f7fb755d138e7dee",
+                "shasum": ""
+            },
+            "require": {
+                "ext-curl": "*",
+                "ext-openssl": "*",
+                "php": ">=5.6.0"
+            },
+            "require-dev": {
+                "apigen/apigen": "v4.1.2",
+                "erusev/parsedown": "1.6.2",
+                "kzykhys/php-csv-parser": "1.4.1",
+                "phpunit/phpunit": "5.7.15",
+                "squizlabs/php_codesniffer": "2.8.1"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "IU\\PHPCap\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "Apache-2.0"
+            ],
+            "description": "PHP API for REDCap",
+            "keywords": [
+                "redcap"
+            ],
+            "time": "2018-04-20T19:37:19+00:00"
+        }
+    ],
+    "packages-dev": [],
+    "aliases": [],
+    "minimum-stability": "stable",
+    "stability-flags": [],
+    "prefer-stable": false,
+    "prefer-lowest": false,
+    "platform": [],
+    "platform-dev": []
+}
