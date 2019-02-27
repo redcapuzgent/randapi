@@ -1,5 +1,9 @@
 # API to allow usage of the RedCap Randomization from plugins
 
+## Help
+
+The help page can be viewed by accessing https://localhost/api/?type=module&prefix=Randapi&page=api&pid=20&NOAUTH
+
 ## Randomization Test
 
 A test for this API was written in testrandomization.php.

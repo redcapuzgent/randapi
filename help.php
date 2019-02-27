@@ -23,7 +23,7 @@
             <p>Adds new records to the allocation table</p>
             <h4>parameters:</h4>
             <ul>
-                <li><b>rid</b>: Randomization table id (integer)</li>
+                <li><b>projectId</b>: The project id (integer)</li>
                 <li><b>project_status</b>: 0 = development, 1 = production (integer)</li>
                 <li><b>allocations</b>: array of new allocation values (see RandomizationAllocation.ts)</li>
             </ul>
@@ -34,7 +34,7 @@
                     {
                         "action":"addRecordsToAllocationTable",
                         "parameters":{
-                            "rid":1,
+                            "projectId":20,
                             "project_status":0,
                             "allocations":[
                                 {"target_field":"A","source_fields":["1","2"]},
