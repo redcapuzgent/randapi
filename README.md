@@ -27,4 +27,4 @@ The allocation test adds 6 new allocations to the allocation table. It assumes t
 
 You can execute it by altering the url below to your configuration.
 
-https://localhost/redcap_v8.10.2/ExternalModules/?NOAUTH&prefix=Randapi&page=testallocation&pid=20
+https://localhost/api/?type=module&prefix=Randapi&page=api&NOAUTH
