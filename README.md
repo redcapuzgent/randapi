@@ -31,4 +31,4 @@ The allocation test adds 6 new allocations to the allocation table. It assumes t
 
 You can execute it by altering the url below to your configuration.
 
-https://localhost/api/?type=module&prefix=Randapi&page=testallocation&pid=20&NOAUTH
+https://localhost/api/?type=module&prefix=Randapi&page=testallocation&pid=20&NOAUTH&token=F33F6876ADC5EC63CE79EBFF88FF0092

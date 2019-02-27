@@ -99,43 +99,84 @@ function handleRandomization(\redcapuzgent\Randapi\Randapi $randapi, $jsonObject
         $groupId,$armName,$eventName);
 }
 
-if ($_SERVER['REQUEST_METHOD'] == 'POST'){
 
-    header('Content-Type: application/json');
+function checkToken(\redcapuzgent\Randapi\Randapi $randapi,stdClass $jsonObject):bool {
+    if(property_exists($jsonObject,"token")){
+        try {
+            $projectId = $randapi->getProjectId();
+            $token = db_real_escape_string($jsonObject->token);
+            // check for project specific token and for super user token
+            $tokenQuery = "SELECT 1 as ok
+                FROM redcap_user_information i
+                JOIN redcap_user_rights u on i.username = u.username
+                WHERE u.api_token = '" . db_escape($token) . "'
+                AND u.project_id = ".$randapi->getProjectId()."
+                AND i.user_suspended_time is null 
+                UNION
+                SELECT 1 as ok
+                FROM redcap_user_information
+                WHERE api_token = '" . db_escape($token) . "'
+                AND user_suspended_time IS NULL 
+                AND super_user = 1";
 
-    $jsonText = file_get_contents("php://input");
-    $jsonObject = json_decode($jsonText, false);
+            error_log($tokenQuery);
 
+            $tokenQueryResult = $randapi->query($tokenQuery);
+            return !is_null($tokenQueryResult->fetch_assoc());
+        }catch(\Exception $e){
+            throw new RandapiException("Could not check token status",500,$e);
+        }
+    }else{
+        throw new RandapiException("Token property was not set");
+    }
+}
+
+function handleRequest(\redcapuzgent\Randapi\Randapi $randapi,stdClass $jsonObject, string $jsonText):void{
     if(property_exists($jsonObject,"action")){
-        try{
-            switch($jsonObject->action){
-                case "addRecordsToAllocationTable":
-                    handleAddAllocation($module,$jsonObject);
-                    echo json_encode("success");
-                    break;
-                case "randomizeRecord":
-                    $foundAid = handleRandomization($module,$jsonObject);
-                    echo json_encode("$foundAid");
-                    break;
-                default:
-                    http_response_code(500);
-                    echo json_encode("incorrect action");
-                    exit(0);
-            }
-        }catch(RandapiException $e){
-            http_response_code(500);
-            echo json_encode($e);
-        }catch(Exception $e){
-            http_response_code(500);
-            echo json_encode(new RandapiException("unexpected error",100,$e));
+        switch($jsonObject->action){
+            case "addRecordsToAllocationTable":
+                handleAddAllocation($randapi,$jsonObject);
+                echo json_encode("success");
+                break;
+            case "randomizeRecord":
+                $foundAid = handleRandomization($randapi,$jsonObject);
+                echo json_encode("$foundAid");
+                break;
+            default:
+                throw new RandapiException("Invalid Action was specified");
         }
     }else{
         http_response_code(500);
         $exception = new RandapiException("Invalid jsonObject was posted: $jsonText");
         echo json_encode($exception);
     }
-}else{
-    include('help.php');
+}
+
+try{
+
+    if ($_SERVER['REQUEST_METHOD'] == 'POST'){
+
+        header('Content-Type: application/json');
+
+        $jsonText = file_get_contents("php://input");
+        $jsonObject = json_decode($jsonText, false);
+
+        if(checkToken($module,$jsonObject)){
+            handleRequest($module,$jsonObject,$jsonText);
+        }else{
+            error_log("incorrect token");
+            throw new RandapiException("You don't have sufficient privileges to access this api.",500);
+        }
+    }else{
+        include('help.php');
+    }
+
+}catch(RandapiException $e){
+    http_response_code(500);
+    echo json_encode($e);
+}catch(Exception $e){
+    http_response_code(500);
+    echo json_encode(new RandapiException("unexpected error",100,$e));
 }
 ?>
 

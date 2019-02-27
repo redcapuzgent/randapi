@@ -75,9 +75,10 @@ try {
         $fields = array(new RandomizationField("randgroup", $test->randgroup));
         try {
 
-            $url = APP_PATH_WEBROOT_FULL."api/?type=module&prefix=Randapi&page=api&NOAUTH";
+            $url = APP_PATH_WEBROOT_FULL."api/?type=module&prefix=Randapi&page=api&NOAUTH&pid=".$module->getProjectId();
             $postfields = [
                 "action"=>"randomizeRecord",
+                "token"=>$token,
                 "parameters"=> [
                     "recordId" => $test->record_id,
                     "projectId" => $module->getProjectId(),
@@ -136,7 +137,11 @@ try {
         $i++;
     }
 
-} catch(Exception $e){
+}catch(RandException $e){
     error_log("error while executing testrandomization: " . $e->getMessage() . " " . $e->getTraceAsString());
+    echo $e->getMessage();
+}catch(Exception $e){
+    error_log("error while executing testrandomization: " . $e->getMessage() . " " . $e->getTraceAsString());
+    echo $e->getMessage();
 }
 
