@@ -108,7 +108,7 @@ try {
             curl_close($ch);
             $assignedAid = json_decode($output);
 
-            error_log("assigned for records $test->record_id aid: $output");
+            error_log("assigned for records $test->record_id aid: $output (decoded $assignedAid)");
             $assignedAids[$test->record_id - 1] = $assignedAid;
         } catch (Exception $e) {
             error_log("error while randomizing: " . $e->getMessage() . " " . $e->getTraceAsString());

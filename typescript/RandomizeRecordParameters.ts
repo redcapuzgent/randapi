@@ -12,7 +12,7 @@ export class RandomizeRecordParameters{
      * @param armName (optional) The name of the arm. default = 'Arm 1'
      * @param eventName (optional) The name of the event. default = 'Event 1'
      */
-    constructor(private recordId: string, private projectId: string, private fields: RandomizationField[],
+    constructor(private recordId: string, private projectId: number, private fields: RandomizationField[],
                 private resultFieldName: string, private groupId: string = '',
                 private armName: string= 'Arm 1', private eventName: string = 'Event 1') {
     }
@@ -22,7 +22,7 @@ export class RandomizeRecordParameters{
         return this.recordId;
     }
 
-    getProjectId(): string {
+    getProjectId(): number {
         return this.projectId;
     }
 

@@ -14,7 +14,7 @@ class Randapi extends AbstractExternalModule
 
     /**
      * @param string $recordId The record that we want to randomize
-     * @param string $projectId The projectId where the record belongs to
+     * @param int $projectId The projectId where the record belongs to
      * @param RandomizationField[] $fields An array of RandomizationFields
      * @param string$resultFieldName The field where the randomization result can be stored.
      * @param string $group_id (optional) The DAG identifier. default = '' (none)
@@ -23,7 +23,7 @@ class Randapi extends AbstractExternalModule
      * @return string returns the field value result of the randomization
      * @throws Exception
      */
-    function randomizeRecord($recordId,$projectId,$fields=array(),$resultFieldName,$group_id='',$arm_name='Arm 1', $event_name='Event 1'){
+    function randomizeRecord(string $recordId,int $projectId,array $fields=array(),string $resultFieldName,string $group_id='',string $arm_name='Arm 1', string $event_name='Event 1'){
         // set globals required for  Randomization::getRandomizationFields;
         global $redcap_version;
         $classesPath = __DIR__.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR."redcap_v$redcap_version".DIRECTORY_SEPARATOR."Classes".DIRECTORY_SEPARATOR;
@@ -63,6 +63,12 @@ class Randapi extends AbstractExternalModule
         $aid =  Randomization::randomizeRecord($recordId,$tfields,$group_id);
         if($aid){
             // retrieve randomization value (target_field)
+
+            // SQL Inject check
+            // ----------------
+
+            // $aid is a method result
+
             $query = "select target_field from redcap.redcap_randomization_allocation rra where rra.aid = $aid";
 
             $randomizationQueryResult = $this->query($query);
@@ -74,15 +80,30 @@ class Randapi extends AbstractExternalModule
             if($randomizationResult){
                 // The randomization result cannot be changed so an insert should not fail because of an duplicate row exception.
                 // The API cannot be used to insert the randomization result
+
+                // SQL Injection check
+                // -------------------
+
+                // $projectId is int in method signature
+                // $recordId should be escaped
+                $recordId = db_real_escape_string($recordId);
+                // $resultFieldName should be escaped
+                $resultFieldName = db_real_escape_string($resultFieldName);
+                // $randomizationResult is not passed by a parameter
+                // $event_name should be escaped
+                $event_name = db_real_escape_string($event_name);
+                // $arm_name should be escaped
+                $arm_name = db_real_escape_string($arm_name);
+
                 $query = "
                 insert into redcap.redcap_data(project_id, event_id, record, field_name, `value`)
                 select $projectId as project_id, md.event_id, '$recordId' as record, '$resultFieldName' as field_name, '$randomizationResult' as `value`
                 from redcap.redcap_events_arms a
                 join redcap.redcap_events_metadata md on 
                     a.arm_id = md.arm_id and
-                    md.descrip = 'Event 1'
+                    md.descrip = '$event_name'
                 where a.project_id = 20 and
-                    a.arm_name='Arm 1';";
+                    a.arm_name='$arm_name';";
                 if($this->query($query)){
                     error_log("Randomization result $randomizationResult for aid $aid successfully saved in record");
                     return $randomizationResult;
@@ -108,6 +129,10 @@ class Randapi extends AbstractExternalModule
      * @throws Exception
      */
     public function addRecordsToAllocationTable(int $projectId,int $project_status,array $allocations){
+        // SQL injection check
+        // -------------------
+
+        // $projectId is typed in method signature
 
         $ridQuery = "select rid from redcap.redcap_randomization where project_id = $projectId";
         $rid = false;
@@ -133,9 +158,24 @@ class Randapi extends AbstractExternalModule
                     $sourceFieldNames[$i] = "source_field" . ($i + 1);
                 }
 
+                // SQL Injection check
+                // -------------------
+
+                // $sourceFieldNames is generated here
+                // $rid is a database result
+                // $project_status is typed (int) in the method signature
+                // $allocation->getTargetField() should be escaped
+                $target_field = db_real_escape_string($allocation->getTargetField());
+                // $allocation->getSourceFields() should be escaped
+                $sourceFields = array();
+                foreach($allocation->getSourceFields() as $sourceField){
+                    array_push($sourceFields, db_real_escape_string($sourceField));
+                }
+
+
                 $query = "
                   insert into redcap_randomization_allocation(rid,project_status,target_field," . implode(',', $sourceFieldNames) . ")
-                  values($rid,$project_status,'" . $allocation->getTargetField() . "','" . implode("','", $allocation->getSourceFields()) . "');";
+                  values($rid,$project_status,'$target_field','" . implode("','", $sourceFields) . "');";
 
                 error_log("Executing query: $query");
                 if (!$this->query($query)) {

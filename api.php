@@ -63,6 +63,9 @@ function handleRandomization(\redcapuzgent\Randapi\Randapi $randapi, $jsonObject
     if(!property_exists($jsonObject->parameters, "projectId")){
         throw new RandapiException("parameters->projectId property not found.");
     }
+    if(!is_numeric($jsonObject->parameters->projectId)){
+        throw new RandapiException("parameters->projectId is not numeric.");
+    }
     if(!property_exists($jsonObject->parameters, "fields")){
         throw new RandapiException("parameters->fields property not found.");
     }
@@ -108,16 +111,17 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST'){
             switch($jsonObject->action){
                 case "addRecordsToAllocationTable":
                     handleAddAllocation($module,$jsonObject);
+                    echo json_encode("success");
                     break;
                 case "randomizeRecord":
-                    handleRandomization($module,$jsonObject);
+                    $foundAid = handleRandomization($module,$jsonObject);
+                    echo json_encode("$foundAid");
                     break;
                 default:
                     http_response_code(500);
                     echo json_encode("incorrect action");
                     exit(0);
             }
-            echo json_encode("success");
         }catch(RandapiException $e){
             http_response_code(500);
             echo json_encode($e);
