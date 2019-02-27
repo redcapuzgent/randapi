@@ -15,11 +15,11 @@ function handleAddAllocation(\redcapuzgent\Randapi\Randapi $randapi, $jsonObject
     if(!property_exists($jsonObject,"parameters")){
         throw new RandapiException("parameters property not found.");
     }
-    if(!property_exists($jsonObject->parameters, "rid")){
-        throw new RandapiException("parameters->rid property not found.");
+    if(!property_exists($jsonObject->parameters, "projectId")){
+        throw new RandapiException("parameters->projectId property not found.");
     }
-    if(!is_numeric($jsonObject->parameters->rid)){
-        throw new RandapiException("parameters->rid is not numeric.");
+    if(!is_numeric($jsonObject->parameters->projectId)){
+        throw new RandapiException("parameters->projectId is not numeric.");
     }
     if(!property_exists($jsonObject->parameters, "project_status")){
         throw new RandapiException("parameters->project_status property not found.");
@@ -42,7 +42,7 @@ function handleAddAllocation(\redcapuzgent\Randapi\Randapi $randapi, $jsonObject
         array_push($allocations,\redcapuzgent\Randapi\RandomizationAllocation::fromstdClass($allocation));
     }
 
-    $randapi->addRecordsToAllocationTable($jsonObject->parameters->rid,
+    $randapi->addRecordsToAllocationTable($jsonObject->parameters->projectId,
         $jsonObject->parameters->project_status,
         $allocations);
 }

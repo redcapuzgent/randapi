@@ -23,100 +23,77 @@ try{
     $project_status = 0;
 
     /* @var $module \redcapuzgent\Randapi\Randapi*/
-    $project_id = $module->getProjectId();
 
-    $ridQuery = "select rid from redcap.redcap_randomization where project_id = $project_id";
-    $rid = false;
-    if($ridQueryResult = $module->query($ridQuery)){
+    // call api method
+    $url = APP_PATH_WEBROOT_FULL."api/?type=module&prefix=Randapi&page=api&NOAUTH";
+    $fields = [
+        "action"=>"addRecordsToAllocationTable",
+        "parameters"=> [
+            "projectId" => intval($module->getProjectId()),
+            "project_status" => $project_status,
+            "allocations" => $allocations
+        ]
+    ];
 
-        if($row = $ridQueryResult->fetch_assoc()){
-            $rid = $row["rid"];
-        }
-        $ridQueryResult->close();
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, $url);
+    curl_setopt($ch, CURLOPT_POST, 1);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($fields));
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); // Set to TRUE for production use
+    curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false); // Set to TRUE for production use
+    curl_setopt($ch, CURLOPT_VERBOSE, 0);
+    curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+    curl_setopt($ch, CURLOPT_AUTOREFERER, true);
+    curl_setopt($ch, CURLOPT_MAXREDIRS, 10);
+    curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
+    curl_setopt($ch, CURLOPT_FRESH_CONNECT, 1);
+
+    $output = curl_exec($ch);
+    if(!$output){
+        echo 'Curl error: ' . curl_error($ch)."\n";
     }else{
-        $msg = "Could not execute ridQuery $ridQuery. ".mysqli_error($conn);
-        echo $msg;
-        error_log($msg);
     }
+    curl_close($ch);
+    $jsonDecoded = json_decode($output);
 
-    if($rid){
-        error_log("found rid $rid");
-        // call api method
-        $url = APP_PATH_WEBROOT_FULL."api/?type=module&prefix=Randapi&page=api&NOAUTH";
-        $fields = [
-            "action"=>"addRecordsToAllocationTable",
-            "parameters"=> [
-                "rid" => intval($rid),
-                "project_status" => $project_status,
-                "allocations" => $allocations
-            ]
-        ];
+    echo "The service returned: $output\n";
 
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_POST, 1);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($fields));
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); // Set to TRUE for production use
-        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false); // Set to TRUE for production use
-        curl_setopt($ch, CURLOPT_VERBOSE, 0);
-        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-        curl_setopt($ch, CURLOPT_AUTOREFERER, true);
-        curl_setopt($ch, CURLOPT_MAXREDIRS, 10);
-        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
-        curl_setopt($ch, CURLOPT_FRESH_CONNECT, 1);
+    if($jsonDecoded == "success"){
 
-        $output = curl_exec($ch);
-        if(!$output){
-            echo 'Curl error: ' . curl_error($ch)."\n";
-        }else{
-        }
-        curl_close($ch);
-        $jsonDecoded = json_decode($output);
+        //$module->addRecordsToAllocationTable(intval($rid),$project_status,$allocations);
 
-        echo "The service returned: $output\n";
+        // check if allocations where added
+        $checkQuery = "
+          select count(*) as aantal 
+          from redcap.redcap_randomization_allocation rra 
+          where rra.rid = $rid and 
+            rra.project_status = $project_status and 
+            rra.source_field1 = '1'";
+        if($checkQueryResult = $module->query($checkQuery)) {
+            $aantal = false;
+            if ($row = $checkQueryResult->fetch_assoc()) {
+                $aantal = $row["aantal"];
+            }
+            $checkQueryResult->close();
 
-        if($jsonDecoded == "success"){
-
-            //$module->addRecordsToAllocationTable(intval($rid),$project_status,$allocations);
-
-            // check if allocations where added
-            $checkQuery = "
-              select count(*) as aantal 
-              from redcap.redcap_randomization_allocation rra 
-              where rra.rid = $rid and 
-                rra.project_status = $project_status and 
-                rra.source_field1 = '1'";
-            if($checkQueryResult = $module->query($checkQuery)) {
-                $aantal = false;
-                if ($row = $checkQueryResult->fetch_assoc()) {
-                    $aantal = $row["aantal"];
-                }
-                $checkQueryResult->close();
-
-                if($aantal){
-                    $msg = ($aantal == 16?"Added correctly":"Error, aantal: $aantal");
-                    echo "Test result: $msg";
-                    error_log($msg);
-                }else{
-                    $msg = "Could not get new allocation count";
-                    echo $msg;
-                    error_log($msg);
-                }
+            if($aantal){
+                $msg = ($aantal == 16?"Added correctly":"Error, aantal: $aantal");
+                echo "Test result: $msg";
+                error_log($msg);
             }else{
-                $msg = "Could not execute checkQuery $checkQuery. ".mysqli_error($conn);
+                $msg = "Could not get new allocation count";
                 echo $msg;
                 error_log($msg);
             }
-
         }else{
-            $msg = "api call failed: ";
+            $msg = "Could not execute checkQuery $checkQuery. ".mysqli_error($conn);
             echo $msg;
             error_log($msg);
         }
 
     }else{
-        $msg = "Could not get rid";
+        $msg = "api call failed: ";
         echo $msg;
         error_log($msg);
     }

@@ -102,26 +102,48 @@ class Randapi extends AbstractExternalModule
     }
 
     /**
-     * @param int $rid
+     * @param int $projectId The project id
      * @param int $project_status (0 = development, 1 = production)
      * @param RandomizationAllocation[] $allocations
      * @throws Exception
      */
-    public function addRecordsToAllocationTable(int $rid,int $project_status,array $allocations){
-        foreach($allocations as $allocation){
-            $sourceFieldNames = array();
-            for($i = 0; $i < sizeof($allocation->getSourceFields()); $i++){
-                $sourceFieldNames[$i] = "source_field".($i+1);
-            }
+    public function addRecordsToAllocationTable(int $projectId,int $project_status,array $allocations){
 
-            $query = "
-                  insert into redcap_randomization_allocation(rid,project_status,target_field,".implode(',',$sourceFieldNames).")
-                  values($rid,$project_status,'".$allocation->getTargetField()."','".implode("','",$allocation->getSourceFields())."');";
-
-            error_log("Executing query: $query");
-            if(!$this->query($query)){
-                throw new Exception("Could not add allocation values to table for query: $query. Exception: ".mysqli_error($this->conn));
+        $ridQuery = "select rid from redcap.redcap_randomization where project_id = $projectId";
+        $rid = false;
+        try{
+            if($ridQueryResult = $this->query($ridQuery)){
+                if($row = $ridQueryResult->fetch_assoc()){
+                    $rid = $row["rid"];
+                }
+                $ridQueryResult->close();
+            }else{
+                $msg = "Could not execute ridQuery $ridQuery. ";
+                error_log($msg);
             }
+        }catch(\Exception $e){
+            $msg = "Could not execute ridQuery $ridQuery. ".$e->getMessage()." ".$e->getTraceAsString();
+            error_log($msg);
+        }
+        if($rid) {
+
+            foreach ($allocations as $allocation) {
+                $sourceFieldNames = array();
+                for ($i = 0; $i < sizeof($allocation->getSourceFields()); $i++) {
+                    $sourceFieldNames[$i] = "source_field" . ($i + 1);
+                }
+
+                $query = "
+                  insert into redcap_randomization_allocation(rid,project_status,target_field," . implode(',', $sourceFieldNames) . ")
+                  values($rid,$project_status,'" . $allocation->getTargetField() . "','" . implode("','", $allocation->getSourceFields()) . "');";
+
+                error_log("Executing query: $query");
+                if (!$this->query($query)) {
+                    throw new Exception("Could not add allocation values to table for query: $query. Exception: " . mysqli_error($this->conn));
+                }
+            }
+        }else{
+            throw new Exception("Could not find rid");
         }
     }
 }

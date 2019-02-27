@@ -1,7 +1,7 @@
 import {RandomizationAllocation} from "./RandomizationAllocation";
 
 export interface AddRecordsToAllocationTableParameters{
-    rid: number;
+    projectId: number;
     project_status: number;
     allocations: RandomizationAllocation[];
 }
