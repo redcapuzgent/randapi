@@ -70,7 +70,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST'){
         }
     }else{
         http_response_code(500);
-        $exception = new RandapiException("Invalid jsonObject was posted: ".print_r($jsonObject,rtue));
+        $exception = new RandapiException("Invalid jsonObject was posted: $jsonText");
         echo json_encode($exception);
     }
 }else{

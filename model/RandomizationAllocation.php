@@ -6,7 +6,7 @@ require_once 'RandapiException.php';
 
 use stdClass;
 
-class RandomizationAllocation
+class RandomizationAllocation implements \JsonSerializable
 {
     /**
      * @var string[]
@@ -62,11 +62,17 @@ class RandomizationAllocation
             property_exists($in,"target_field")){
             return new RandomizationAllocation($in->source_fields, $in->target_field);
         }else{
-            throw new \RandapiException("Could not create allocation. Object does not have properties source_fields and target_field");
+            throw new \RandapiException("Could not create RandomizationAllocation. Object does not have properties source_fields and target_field");
         }
     }
 
-
+    public function jsonSerialize()
+    {
+        return [
+            "source_fields"=>$this->getSourceFields(),
+            "target_field"=>$this->getTargetField()
+        ];
+    }
 
 
 }
