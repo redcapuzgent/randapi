@@ -61,14 +61,14 @@ try{
 
     if($jsonDecoded == "success"){
 
-        //$module->addRecordsToAllocationTable(intval($rid),$project_status,$allocations);
-
         // check if allocations where added
         $checkQuery = "
           select count(*) as aantal 
           from redcap.redcap_randomization_allocation rra 
-          where rra.rid = $rid and 
-            rra.project_status = $project_status and 
+          join redcap.redcap_randomization rr on 
+            rr.rid = rra.rid and 
+            rr.project_id = ".$module->getProjectId()."
+          where rra.project_status = $project_status and 
             rra.source_field1 = '1'";
         if($checkQueryResult = $module->query($checkQuery)) {
             $aantal = false;
