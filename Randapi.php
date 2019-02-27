@@ -23,7 +23,7 @@ class Randapi extends AbstractExternalModule
      * @return string returns the field value result of the randomization
      * @throws Exception
      */
-    function randomizeRecord(string $recordId,int $projectId,array $fields=array(),string $resultFieldName,string $group_id='',string $arm_name='Arm 1', string $event_name='Event 1'){
+    function randomizeRecord(string $recordId,int $projectId,array $fields=array(),string $resultFieldName,string $group_id='',string $arm_name='Arm 1', string $event_name='Event 1'): string{
         // set globals required for  Randomization::getRandomizationFields;
         global $redcap_version;
         $classesPath = __DIR__.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR."redcap_v$redcap_version".DIRECTORY_SEPARATOR."Classes".DIRECTORY_SEPARATOR;
@@ -128,7 +128,7 @@ class Randapi extends AbstractExternalModule
      * @param RandomizationAllocation[] $allocations
      * @throws Exception
      */
-    public function addRecordsToAllocationTable(int $projectId,int $project_status,array $allocations){
+    public function addRecordsToAllocationTable(int $projectId,int $project_status,array $allocations): void{
         // SQL injection check
         // -------------------
 
