@@ -28,18 +28,20 @@ class Randapi extends AbstractExternalModule
         global $redcap_version;
         $classesPath = __DIR__.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR."redcap_v$redcap_version".DIRECTORY_SEPARATOR."Classes".DIRECTORY_SEPARATOR;
         require_once($classesPath."Randomization.php");
-        require_once(__DIR__ . DIRECTORY_SEPARATOR);
+        require_once(__DIR__ . DIRECTORY_SEPARATOR."/model/RandomizationField.php");
 
         if(!defined(PROJECT_ID)){
-            error_log("defining project id");
-            define(PROJECT_ID,$this->getProjectId());
+            error_log("defining project id $projectId");
+            define(PROJECT_ID,$projectId);
         }else{
             error_log("project id was already defined");
         }
         global $longitudinal;
         if(!isset($longitudinal)){
             error_log("defining longitudinal");
-            $proj = new Project($projectId, true);
+            //echo "requiring $classesPath"."Project.php";
+            require_once($classesPath."Project.php");
+            $proj = new \Project($projectId, true);
             $longitudinal = $proj->longitudinal;
         }else{
             error_log("longitudinal was already defined");

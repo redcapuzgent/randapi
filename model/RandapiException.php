@@ -12,7 +12,7 @@ class RandapiException extends Exception implements JsonSerializable
         return [
             "message"=>$this->message,
             "code"=>$this->code,
-            "previous"=>!is_null($this->getPrevious())?$this->getPrevious()->getTraceAsString():null
+            "previous"=>!is_null($this->getPrevious())?$this->getPrevious()->getMessage()." ".$this->getPrevious()->getTraceAsString():null
         ];
     }
 }

@@ -2,7 +2,7 @@
 
 namespace redcapuzgent\Randapi;
 
-class RandomizationField
+class RandomizationField implements \JsonSerializable
 {
     /**
      * @var string
@@ -38,6 +38,23 @@ class RandomizationField
     public function getValue(): string
     {
         return $this->value;
+    }
+
+    public static function fromStdClass(\stdClass $in){
+        if(property_exists($in,"key") &&
+            property_exists($in,"value")){
+            return new RandomizationField($in->key, $in->value);
+        }else{
+            throw new \RandapiException("Could not create RandomizationField. Object does not have properties key and value");
+        }
+    }
+
+    public function jsonSerialize()
+    {
+        return [
+            "key"=>$this->getKey(),
+            "value"=>$this->getValue()
+        ];
     }
 
 }

@@ -4,6 +4,7 @@
 // https://localhost/api/?type=module&prefix=Randapi&page=api&NOAUTH
 require_once 'model/RandapiException.php';
 require_once 'model/RandomizationAllocation.php';
+require_once 'model/RandomizationField.php';
 
 /**
  * @param $jsonObject
@@ -46,6 +47,55 @@ function handleAddAllocation(\redcapuzgent\Randapi\Randapi $randapi, $jsonObject
         $allocations);
 }
 
+/**
+ * @param \redcapuzgent\Randapi\Randapi $randapi
+ * @param $jsonObject
+ * @return string
+ * @throws RandapiException
+ */
+function handleRandomization(\redcapuzgent\Randapi\Randapi $randapi, $jsonObject){
+    if(!property_exists($jsonObject,"parameters")){
+        throw new RandapiException("parameters property not found.");
+    }
+    if(!property_exists($jsonObject->parameters, "recordId")){
+        throw new RandapiException("parameters->recordId property not found.");
+    }
+    if(!property_exists($jsonObject->parameters, "projectId")){
+        throw new RandapiException("parameters->projectId property not found.");
+    }
+    if(!property_exists($jsonObject->parameters, "fields")){
+        throw new RandapiException("parameters->fields property not found.");
+    }
+    if(!property_exists($jsonObject->parameters, "resultFieldName")){
+        throw new RandapiException("parameters->resultFieldName property not found.");
+    }
+
+    // optional
+    $groupId = "";
+    if(property_exists($jsonObject->parameters, "groupId")){
+        $groupId = $jsonObject->parameters->groupId;
+    }
+    $armName = "Arm 1";
+    if(property_exists($jsonObject->parameters, "armName")){
+        $groupId = $jsonObject->parameters->armName;
+    }
+    $eventName = "Event 1";
+    if(property_exists($jsonObject->parameters, "eventName")){
+        $eventName = $jsonObject->parameters->eventName;
+    }
+
+    $fields = array();
+    foreach($jsonObject->parameters->fields as $field){
+        array_push($fields,\redcapuzgent\Randapi\RandomizationField::fromStdClass($field));
+    }
+    //randomizeRecord($recordId,$projectId,$fields=array(),$resultFieldName,$group_id='',$arm_name='Arm 1', $event_name='Event 1'){
+    return $randapi->randomizeRecord($jsonObject->parameters->recordId,
+        $jsonObject->parameters->projectId,
+        $fields,
+        $jsonObject->parameters->resultFieldName,
+        $groupId,$armName,$eventName);
+}
+
 if ($_SERVER['REQUEST_METHOD'] == 'POST'){
 
     header('Content-Type: application/json');
@@ -59,6 +109,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST'){
                 case "addRecordsToAllocationTable":
                     handleAddAllocation($module,$jsonObject);
                     break;
+                case "randomizeRecord":
+                    handleRandomization($module,$jsonObject);
+                    break;
+                default:
+                    http_response_code(500);
+                    echo json_encode("incorrect action");
+                    exit(0);
             }
             echo json_encode("success");
         }catch(RandapiException $e){
