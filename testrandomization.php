@@ -1,7 +1,7 @@
 <?php
 
 require_once(__DIR__.DIRECTORY_SEPARATOR."vendor/autoload.php");
-require_once(__DIR__.DIRECTORY_SEPARATOR . "RandomizationField.php");
+require_once(__DIR__ . DIRECTORY_SEPARATOR);
 
 use IU\PHPCap\RedCapProject;
 use redcapuzgent\Randapi\RandomizationField;
@@ -16,7 +16,12 @@ try {
     error_log("retrieved token $token and url $apiUrl");
 
     $project = new RedCapProject($apiUrl,$token);
-    $existingRecords = $project->exportRecords('php','flat',null,array("record_id"));
+    $existingRecords = $module->getData(array(
+        'return_format'=>'php',
+        'fields'=>array("record_id")
+    ));
+
+    //$existingRecords = $project->exportRecords('php','flat',null,array("record_id"));
 
     error_log("retrieved existing records: " . print_r($existingRecords, true));
 
