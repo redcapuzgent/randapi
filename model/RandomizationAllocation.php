@@ -2,6 +2,10 @@
 
 namespace redcapuzgent\Randapi;
 
+require_once 'RandapiException.php';
+
+use stdClass;
+
 class RandomizationAllocation
 {
     /**
@@ -46,6 +50,20 @@ class RandomizationAllocation
     public function getTargetField(): string
     {
         return $this->target_field;
+    }
+
+    /**
+     * @param stdClass $in
+     * @return RandomizationAllocation
+     * @throws \RandapiException
+     */
+    public static function fromstdClass(stdClass $in){
+        if(property_exists($in,"source_fields") &&
+            property_exists($in,"target_field")){
+            return new RandomizationAllocation($in->source_fields, $in->target_field);
+        }else{
+            throw new \RandapiException("Could not create allocation. Object does not have properties source_fields and target_field");
+        }
     }
 
 

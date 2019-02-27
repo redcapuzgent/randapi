@@ -28,7 +28,7 @@ class Randapi extends AbstractExternalModule
         global $redcap_version;
         $classesPath = __DIR__.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR."redcap_v$redcap_version".DIRECTORY_SEPARATOR."Classes".DIRECTORY_SEPARATOR;
         require_once($classesPath."Randomization.php");
-        require_once(__DIR__.DIRECTORY_SEPARATOR.'RandomizationField.php');
+        require_once(__DIR__ . DIRECTORY_SEPARATOR);
 
         if(!defined(PROJECT_ID)){
             error_log("defining project id");
