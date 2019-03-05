@@ -196,12 +196,6 @@ class Randapi extends AbstractExternalModule
         if(!property_exists($jsonObject,"parameters")){
             throw new RandapiException("parameters property not found.");
         }
-        if(!property_exists($jsonObject->parameters, "projectId")){
-            throw new RandapiException("parameters->projectId property not found.");
-        }
-        if(!is_numeric($jsonObject->parameters->projectId)){
-            throw new RandapiException("parameters->projectId is not numeric.");
-        }
         if(!property_exists($jsonObject->parameters, "project_status")){
             throw new RandapiException("parameters->project_status property not found.");
         }
@@ -223,7 +217,7 @@ class Randapi extends AbstractExternalModule
             array_push($allocations,RandomizationAllocation::fromstdClass($allocation));
         }
 
-        $this->addRecordsToAllocationTable($jsonObject->parameters->projectId,
+        $this->addRecordsToAllocationTable($this->getProjectId(),
             $jsonObject->parameters->project_status,
             $allocations);
     }
@@ -239,12 +233,6 @@ class Randapi extends AbstractExternalModule
         }
         if(!property_exists($jsonObject->parameters, "recordId")){
             throw new RandapiException("parameters->recordId property not found.");
-        }
-        if(!property_exists($jsonObject->parameters, "projectId")){
-            throw new RandapiException("parameters->projectId property not found.");
-        }
-        if(!is_numeric($jsonObject->parameters->projectId)){
-            throw new RandapiException("parameters->projectId is not numeric.");
         }
         if(!property_exists($jsonObject->parameters, "fields")){
             throw new RandapiException("parameters->fields property not found.");
@@ -273,7 +261,7 @@ class Randapi extends AbstractExternalModule
         }
         //randomizeRecord($recordId,$projectId,$fields=array(),$resultFieldName,$group_id='',$arm_name='Arm 1', $event_name='Event 1'){
         return $this->randomizeRecord($jsonObject->parameters->recordId,
-            $jsonObject->parameters->projectId,
+            $this->getProjectId(),
             $fields,
             $jsonObject->parameters->resultFieldName,
             $groupId,$armName,$eventName);
@@ -364,6 +352,9 @@ class Randapi extends AbstractExternalModule
      * @throws RandapiException
      */
     public function checkToken(stdClass $jsonObject):bool {
+        if(!$this->getProjectId()){
+            throw new RandapiException("projectid was not set");
+        }
         if(property_exists($jsonObject,"token")){
             try {
                 $token = db_real_escape_string($jsonObject->token);

@@ -81,7 +81,6 @@ try {
                 "token"=>$token,
                 "parameters"=> [
                     "recordId" => $test->record_id,
-                    "projectId" => $module->getProjectId(),
                     "fields" => $fields,
                     "resultFieldName"=>"assignedto"
                 ]

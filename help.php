@@ -23,7 +23,6 @@
             <p>Adds new records to the allocation table</p>
             <h3>parameters:</h3>
             <ul>
-                <li><b>projectId</b>: The project id (integer)</li>
                 <li><b>project_status</b>: 0 = development, 1 = production (integer)</li>
                 <li><b>allocations</b>: array of new allocation values (see RandomizationAllocation.ts)</li>
             </ul>
@@ -35,7 +34,6 @@
                         "action":"addRecordsToAllocationTable",
                         "token":"F33F6876ADC5EC63CE79EBFF88FF0092",
                         "parameters":{
-                            "projectId":20,
                             "project_status":0,
                             "allocations":[
                                 {"target_field":"A","source_fields":["1","2"]},
@@ -53,7 +51,6 @@
             <h3>parameters:</h3>
             <ul>
                 <li><b>recordId</b>: The record that we want to randomize</li>
-                <li><b>projectId</b>: The projectId where the record belongs to</li>
                 <li><b>fields</b>: An array of RandomizationFields</li>
                 <li><b>resultFieldName</b>: The field where the randomization result can be stored.</li>
                 <li><b>groupId</b>: (optional) The DAG identifier. default = '' (none)</li>
@@ -69,7 +66,6 @@
                         "token":"F33F6876ADC5EC63CE79EBFF88FF0092",
                         "parameters":{
                             "recordId":1,
-                            "projectId":20,
                             "fields":[
                                 {"key":"randgroup","value":"1"}
                             ],

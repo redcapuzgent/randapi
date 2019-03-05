@@ -49,7 +49,7 @@ try{
     // define project_status = 0 when project is in development.
     $project_status = 0;
 
-    $nrOfInitialAllocations = countAllocations($token,$project_id,"1",array("1"));
+    $nrOfInitialAllocations = countAllocations($token,$module->getProjectId(),"1",array("1"));
 
     if($nrOfInitialAllocations==5){
 
@@ -71,7 +71,6 @@ try{
             "action"=>"addRecordsToAllocationTable",
             "token"=>$token,
             "parameters"=> [
-                "projectId" => intval($module->getProjectId()),
                 "project_status" => $project_status,
                 "allocations" => $allocations
             ]
@@ -122,7 +121,7 @@ try{
                 if($aantal){
                     $msg = ($aantal == 16?"Added correctly":"Error, aantal: $aantal");
 
-                    $newNrOfAllocations = countAllocations($token,$project_id,"1",array("1"));
+                    $newNrOfAllocations = countAllocations($token,$module->getProjectId(),"1",array("1"));
                     if($newNrOfAllocations == 8){
                         $msg .="<br />Correct new number of allocations.";
                     }else{
