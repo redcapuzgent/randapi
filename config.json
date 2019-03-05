@@ -6,7 +6,8 @@
 	"description": "An API to export randomization functionalities and perform additional actions associated with randomization.",
 
 	"versions": [
-		{"0.0.1": "exploring redcap functionality"}
+		{"0.0.1": "exploring redcap functionality"},
+		{"0.0.2": "use tokens to validate API privileges"}
 	],
 
 	"authors": [
