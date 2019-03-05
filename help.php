@@ -14,7 +14,7 @@
         <div class="container">
             <h1>RandAPI Usage</h1>
             <p>RandAPI is a rest service that exposes some methods to work with the build in Randomization support of <a href="https://projectredcap.org/">REDCap</a>.</p>
-            <p>Basically the randapi accepts a json object that defines an action and some parameters</p>
+            <p>Basically the randapi accepts a json object that defines an action, a token and some parameters</p>
             <p>The JSON object can be send to an url (e.g. https://localhost/api/?type=module&prefix=Randapi&page=api&NOAUTH)</p>
 
             <h2>Actions</h2>
@@ -33,6 +33,7 @@
                 <code>
                     {
                         "action":"addRecordsToAllocationTable",
+                        "token":"F33F6876ADC5EC63CE79EBFF88FF0092",
                         "parameters":{
                             "projectId":20,
                             "project_status":0,
@@ -65,6 +66,7 @@
             <pre>
                 <code>
                         "action":"randomizeRecord",
+                        "token":"F33F6876ADC5EC63CE79EBFF88FF0092",
                         "parameters":{
                             "recordId":1,
                             "projectId":20,

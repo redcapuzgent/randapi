@@ -8,6 +8,8 @@ use redcapuzgent\Randapi\RandomizationAllocation;
 
 try{
 
+    $token = $_GET["token"];
+
     //https://localhost/redcap_v8.10.2/ExternalModules/?NOAUTH&prefix=Randapi&page=testallocation&pid=20
     //https://localhost/api/?type=module&prefix=Randapi&page=testallocation&pid=20&NOAUTH
 
@@ -25,9 +27,10 @@ try{
     /* @var $module \redcapuzgent\Randapi\Randapi*/
 
     // call api method
-    $url = APP_PATH_WEBROOT_FULL."api/?type=module&prefix=Randapi&page=api&NOAUTH";
+    $url = APP_PATH_WEBROOT_FULL."api/?type=module&prefix=Randapi&page=api&NOAUTH&pid=".$module->getProjectId();
     $fields = [
         "action"=>"addRecordsToAllocationTable",
+        "token"=>$token,
         "parameters"=> [
             "projectId" => intval($module->getProjectId()),
             "project_status" => $project_status,
