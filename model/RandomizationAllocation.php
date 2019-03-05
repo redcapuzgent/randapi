@@ -33,7 +33,7 @@ class RandomizationAllocation implements \JsonSerializable
             throw new Exception("Invalid target_field parameter");
         }
         $this->source_fields = $source_fields;
-        $this->target_field = $target_field;
+        $this->target_field = db_real_escape_string($target_field);
     }
 
     /**
@@ -50,6 +50,28 @@ class RandomizationAllocation implements \JsonSerializable
     public function getTargetField(): string
     {
         return $this->target_field;
+    }
+
+    /**
+     * @return string[]
+     */
+    public function getSourceFieldNames(){
+        $sourceFieldNames = array();
+        for ($i = 0; $i < sizeof($this->getSourceFields()); $i++) {
+            $sourceFieldNames[$i] = "source_field" . ($i + 1);
+        }
+        return $sourceFieldNames;
+    }
+
+    /**
+     * @return string[]
+     */
+    public function getSourceFieldValues(){
+        $sourceFieldValues = array();
+        foreach($this->getSourceFields() as $sourceField){
+            array_push($sourceFieldValues, db_real_escape_string($sourceField));
+        }
+        return $sourceFieldValues;
     }
 
     /**

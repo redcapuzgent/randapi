@@ -17,17 +17,17 @@
             <p>Basically the randapi accepts a json object that defines an action, a token and some parameters</p>
             <p>The JSON object can be send to an url (e.g. https://localhost/api/?type=module&prefix=Randapi&page=api&NOAUTH)</p>
 
-            <h2>Actions</h2>
+            <h1>Actions</h1>
 
-            <h3>addRecordsToAllocationTable</h3>
+            <h2>addRecordsToAllocationTable</h2>
             <p>Adds new records to the allocation table</p>
-            <h4>parameters:</h4>
+            <h3>parameters:</h3>
             <ul>
                 <li><b>projectId</b>: The project id (integer)</li>
                 <li><b>project_status</b>: 0 = development, 1 = production (integer)</li>
                 <li><b>allocations</b>: array of new allocation values (see RandomizationAllocation.ts)</li>
             </ul>
-            <h4>Example:</h4>
+            <h3>Example:</h3>
             <p>This example adds </p>
             <pre>
                 <code>
@@ -48,9 +48,9 @@
                 </code>
             </pre>
 
-            <h3>randomizeRecord</h3>
+            <h2>randomizeRecord</h2>
             <p>Randomizes a record</p>
-            <h4>parameters:</h4>
+            <h3>parameters:</h3>
             <ul>
                 <li><b>recordId</b>: The record that we want to randomize</li>
                 <li><b>projectId</b>: The projectId where the record belongs to</li>
@@ -60,7 +60,7 @@
                 <li><b>armName</b>: (optional) The name of the arm. default = 'Arm 1'</li>
                 <li><b>eventName</b>: (optional) The name of the event. default = 'Event 1'</li>
             </ul>
-            <h4>Example:</h4>
+            <h3>Example:</h3>
             <p>This example randomizes a record with id 1 (from project with id 20). The randomization is performed using a field called `randgroup` with value 1. The result should be saved in a field called `assignedto`</p>
 
             <pre>
@@ -74,6 +74,26 @@
                                 {"key":"randgroup","value":"1"}
                             ],
                             "resultFieldName"=>"assignedto"
+                        }
+                    }
+                </code>
+            </pre>
+
+
+            <h2>availableSlots</h2>
+            <p>Check the number of available slots in the allocation table for a given target_field and a set of source_fields.</p>
+            <h3>parameters:</h3>
+            An instance of RandomizationAllocation.ts
+            <h3>Example:</h3>
+            <p>This example randomizes a record with id 1 (from project with id 20). The randomization is performed using a field called `randgroup` with value 1. The result should be saved in a field called `assignedto`</p>
+
+            <pre>
+                <code>
+                        "action":"randomizeRecord",
+                        "token":"F33F6876ADC5EC63CE79EBFF88FF0092",
+                        "parameters":{
+                            "target_field":"1",
+                            "source_fields":["1","2"]
                         }
                     }
                 </code>
