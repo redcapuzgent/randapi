@@ -1,9 +1,15 @@
 <?php
 namespace redcapuzgent\Randapi;
 
+require_once __DIR__.DIRECTORY_SEPARATOR.'model/RandapiException.php';
+require_once __DIR__.DIRECTORY_SEPARATOR.'model/RandomizationAllocation.php';
+require_once __DIR__.DIRECTORY_SEPARATOR.'model/RandomizationField.php';
+
 use ExternalModules\AbstractExternalModule;
 use Exception;
+use RandapiException;
 use Randomization;
+use stdClass;
 
 class Randapi extends AbstractExternalModule
 {
@@ -184,6 +190,163 @@ class Randapi extends AbstractExternalModule
             }
         }else{
             throw new Exception("Could not find rid");
+        }
+    }
+
+    /**
+     * @param $jsonObject
+     * @throws RandapiException | Exception
+     */
+    private function handleAddAllocation($jsonObject){
+
+        if(!property_exists($jsonObject,"parameters")){
+            throw new RandapiException("parameters property not found.");
+        }
+        if(!property_exists($jsonObject->parameters, "projectId")){
+            throw new RandapiException("parameters->projectId property not found.");
+        }
+        if(!is_numeric($jsonObject->parameters->projectId)){
+            throw new RandapiException("parameters->projectId is not numeric.");
+        }
+        if(!property_exists($jsonObject->parameters, "project_status")){
+            throw new RandapiException("parameters->project_status property not found.");
+        }
+        if(!is_numeric($jsonObject->parameters->project_status)){
+            throw new RandapiException("parameters->project_status is not numeric.");
+        }
+        if(!in_array($jsonObject->parameters->project_status, array(0,1))){
+            throw new RandapiException("parameters->project_status does not have values 0 or 1.");
+        }
+        if(!property_exists($jsonObject->parameters, "allocations")){
+            throw new RandapiException("parameters->project_status property not found.");
+        }
+        if(!is_array($jsonObject->parameters->allocations)){
+            throw new RandapiException("parameters->project_status is not an array.");
+        }
+
+        $allocations = array();
+        foreach($jsonObject->parameters->allocations as $allocation){
+            array_push($allocations,RandomizationAllocation::fromstdClass($allocation));
+        }
+
+        $this->addRecordsToAllocationTable($jsonObject->parameters->projectId,
+            $jsonObject->parameters->project_status,
+            $allocations);
+    }
+
+    /**
+     * @param $jsonObject
+     * @return string
+     * @throws \RandapiException
+     */
+    private function handleRandomization($jsonObject){
+        if(!property_exists($jsonObject,"parameters")){
+            throw new RandapiException("parameters property not found.");
+        }
+        if(!property_exists($jsonObject->parameters, "recordId")){
+            throw new RandapiException("parameters->recordId property not found.");
+        }
+        if(!property_exists($jsonObject->parameters, "projectId")){
+            throw new RandapiException("parameters->projectId property not found.");
+        }
+        if(!is_numeric($jsonObject->parameters->projectId)){
+            throw new RandapiException("parameters->projectId is not numeric.");
+        }
+        if(!property_exists($jsonObject->parameters, "fields")){
+            throw new RandapiException("parameters->fields property not found.");
+        }
+        if(!property_exists($jsonObject->parameters, "resultFieldName")){
+            throw new RandapiException("parameters->resultFieldName property not found.");
+        }
+
+        // optional
+        $groupId = "";
+        if(property_exists($jsonObject->parameters, "groupId")){
+            $groupId = $jsonObject->parameters->groupId;
+        }
+        $armName = "Arm 1";
+        if(property_exists($jsonObject->parameters, "armName")){
+            $groupId = $jsonObject->parameters->armName;
+        }
+        $eventName = "Event 1";
+        if(property_exists($jsonObject->parameters, "eventName")){
+            $eventName = $jsonObject->parameters->eventName;
+        }
+
+        $fields = array();
+        foreach($jsonObject->parameters->fields as $field){
+            array_push($fields,RandomizationField::fromStdClass($field));
+        }
+        //randomizeRecord($recordId,$projectId,$fields=array(),$resultFieldName,$group_id='',$arm_name='Arm 1', $event_name='Event 1'){
+        return $this->randomizeRecord($jsonObject->parameters->recordId,
+            $jsonObject->parameters->projectId,
+            $fields,
+            $jsonObject->parameters->resultFieldName,
+            $groupId,$armName,$eventName);
+    }
+
+    /**
+     * @param stdClass $jsonObject
+     * @param string $jsonText
+     * @throws \RandapiException
+     */
+    public function handleRequest(stdClass $jsonObject, string $jsonText):void{
+        if($this->checkToken($jsonObject)){
+            if(property_exists($jsonObject,"action")){
+                switch($jsonObject->action){
+                    case "addRecordsToAllocationTable":
+                        $this->handleAddAllocation($jsonObject);
+                        echo json_encode("success");
+                        break;
+                    case "randomizeRecord":
+                        $foundAid =$this->handleRandomization($jsonObject);
+                        echo json_encode("$foundAid");
+                        break;
+                    default:
+                        throw new RandapiException("Invalid Action was specified");
+                }
+            }else{
+                http_response_code(500);
+                $exception = new RandapiException("Invalid jsonObject was posted: $jsonText");
+                echo json_encode($exception);
+            }
+        }else{
+            error_log("incorrect token");
+            throw new RandapiException("You don't have sufficient privileges to access this api.",500);
+        }
+    }
+
+    /**
+     * @param stdClass $jsonObject
+     * @return bool
+     */
+    public function checkToken(stdClass $jsonObject):bool {
+        if(property_exists($jsonObject,"token")){
+            try {
+                $token = db_real_escape_string($jsonObject->token);
+                // check for project specific token and for super user token
+                $tokenQuery = "SELECT 1 as ok
+                FROM redcap_user_information i
+                JOIN redcap_user_rights u on i.username = u.username
+                WHERE u.api_token = '" . db_escape($token) . "'
+                AND u.project_id = ".$this->getProjectId()."
+                AND i.user_suspended_time is null 
+                UNION
+                SELECT 1 as ok
+                FROM redcap_user_information
+                WHERE api_token = '" . db_escape($token) . "'
+                AND user_suspended_time IS NULL 
+                AND super_user = 1";
+
+                error_log($tokenQuery);
+
+                $tokenQueryResult = $this->query($tokenQuery);
+                return !is_null($tokenQueryResult->fetch_assoc());
+            }catch(\Exception $e){
+                throw new RandapiException("Could not check token status",500,$e);
+            }
+        }else{
+            throw new RandapiException("Token property was not set");
         }
     }
 }
