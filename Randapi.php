@@ -319,6 +319,7 @@ class Randapi extends AbstractExternalModule
     /**
      * @param stdClass $jsonObject
      * @return bool
+     * @throws RandapiException
      */
     public function checkToken(stdClass $jsonObject):bool {
         if(property_exists($jsonObject,"token")){
