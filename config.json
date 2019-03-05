@@ -29,5 +29,11 @@
 		"api",
 		"testallocation",
 		"testrandomization"
-	]
+	],
+	"compatibility": {
+		"php-version-min": "7.1.0",
+		"php-version-max": "",
+		"redcap-version-min": "8.10",
+		"redcap-version-max": "8.10"
+	}
 }
