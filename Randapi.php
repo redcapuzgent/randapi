@@ -276,17 +276,18 @@ class Randapi extends AbstractExternalModule
         if(!property_exists($jsonObject,"parameters")){
             throw new RandapiException("parameters property not found.");
         }
-        if(!property_exists($jsonObject->parameters, "target_field")){
-            throw new RandapiException("parameters->target_field property not found.");
-        }
         if(!property_exists($jsonObject->parameters, "source_fields")){
             throw new RandapiException("parameters->source_fields property not found.");
         }
-        $allocation = new RandomizationAllocation($jsonObject->parameters->source_fields, $jsonObject->parameters->target_field);
+
+        /**
+         * @var $source_fields string[]
+         */
+        $source_fields = $jsonObject->parameters->source_fields;
 
         $sourceWhere = array();
-        for($i = 0; $i < sizeof($allocation->getSourceFieldNames()); $i++){
-            array_push($sourceWhere,"rra.source_field".($i+1)." = '".$allocation->getSourceFieldValues()[$i]."'");
+        for($i = 0; $i < sizeof($source_fields); $i++){
+            array_push($sourceWhere,"rra.source_field".($i+1)." = '".$source_fields[$i]."'");
         }
 
         $asQuery = "select count(*) as nrOfAvailableSlots
@@ -294,7 +295,7 @@ class Randapi extends AbstractExternalModule
                 join redcap_randomization rr on 
                     rr.project_id = ".$this->getProjectId()." and
                     rr.rid = rra.rid
-                where rra.target_field = '".$allocation->getTargetField()."' and
+                where rra.is_used_by is null and
                         ".implode(" and ",$sourceWhere);
 
         if($ridQueryResult = $this->query($asQuery)) {

@@ -15,7 +15,7 @@
             <h1>RandAPI Usage</h1>
             <p>RandAPI is a rest service that exposes some methods to work with the build in Randomization support of <a href="https://projectredcap.org/">REDCap</a>.</p>
             <p>Basically the randapi accepts a json object that defines an action, a token and some parameters</p>
-            <p>The JSON object can be send to an url (e.g. https://localhost/api/?type=module&prefix=Randapi&page=api&NOAUTH)</p>
+            <p>The JSON object can be send to an url (e.g. https://localhost/api/?type=module&prefix=Randapi&page=api&NOAUTH&pid=xxx). Most methods require you to set the pid get parameter and validate that you may perform operations within the project using the token. NOAUTH must be specified because this is an api and it is not possible to first login to REDCap.</p>
 
             <h1>Actions</h1>
 
@@ -24,7 +24,7 @@
             <h3>parameters:</h3>
             <ul>
                 <li><b>project_status</b>: 0 = development, 1 = production (integer)</li>
-                <li><b>allocations</b>: array of new allocation values (see RandomizationAllocation.ts)</li>
+                <li><b>allocations</b>: Array of new allocation values. (see <a href="https://github.com/redcapuzgent/randapi/blob/master/typescript/RandomizationAllocation.ts" >RandomizationAllocation.ts</a>)</li>
             </ul>
             <h3>Example:</h3>
             <p>This example adds </p>
@@ -51,7 +51,7 @@
             <h3>parameters:</h3>
             <ul>
                 <li><b>recordId</b>: The record that we want to randomize</li>
-                <li><b>fields</b>: An array of RandomizationFields</li>
+                <li><b>fields</b>: An array of RandomizationFields. (see <a href="https://github.com/redcapuzgent/randapi/blob/master/typescript/RandomizationField.ts" >RandomizationFields.ts</a>)</li>
                 <li><b>resultFieldName</b>: The field where the randomization result can be stored.</li>
                 <li><b>groupId</b>: (optional) The DAG identifier. default = '' (none)</li>
                 <li><b>armName</b>: (optional) The name of the arm. default = 'Arm 1'</li>
@@ -79,16 +79,15 @@
             <h2>availableSlots</h2>
             <p>Check the number of available slots in the allocation table for a given target_field and a set of source_fields.</p>
             <h3>parameters:</h3>
-            An instance of RandomizationAllocation.ts
+            An instance of AvailableSlotsParameters.ts  (see <a href="https://github.com/redcapuzgent/randapi/blob/master/typescript/AvailableSlotsParameters.ts" >AvailableSlotsParameters.ts</a>)
             <h3>Example:</h3>
-            <p>This example randomizes a record with id 1 (from project with id 20). The randomization is performed using a field called `randgroup` with value 1. The result should be saved in a field called `assignedto`</p>
+            <p>This example retrieves the number of records that are available in the allocation table for a target result 1 and a combination of source field values </p>
 
             <pre>
                 <code>
                         "action":"randomizeRecord",
                         "token":"F33F6876ADC5EC63CE79EBFF88FF0092",
                         "parameters":{
-                            "target_field":"1",
                             "source_fields":["1","2"]
                         }
                     }

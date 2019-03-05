@@ -1,9 +1,9 @@
 import {RandApiAction} from "./RandApiAction";
-import {RandomizationAllocation} from "./RandomizationAllocation";
+import {AvailableSlotsParameters} from "./AvailableSlotsParameters";
 
 export class AvailableSlotsAction extends RandApiAction{
 
-    constructor(public parameters:RandomizationAllocation, public token: string){
+    constructor(public parameters:AvailableSlotsParameters, public token: string){
         super("availableSlots",token, parameters);
     }
 }

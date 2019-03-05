@@ -2,6 +2,7 @@
 
 require_once(__DIR__.DIRECTORY_SEPARATOR."vendor/autoload.php");
 require_once(__DIR__.DIRECTORY_SEPARATOR . "model/RandomizationField.php");
+require_once(__DIR__. "/test_utils/count_allocations.php");
 
 use IU\PHPCap\RedCapProject;
 use redcapuzgent\Randapi\RandomizationField;
@@ -39,6 +40,11 @@ try {
         } else {
             error_log("deleted successfully");
         }
+    }
+
+    $nrOfAvailableSlots = countAllocations($token, $module->getProjectId(),array("1"));
+    if($nrOfAvailableSlots != 10){
+        echo "The number of available slots before randomization was not 10 but was $nrOfAvailableSlots";
     }
 
 // import test dataset
@@ -114,6 +120,12 @@ try {
             error_log("error while randomizing: " . $e->getMessage() . " " . $e->getTraceAsString());
         }
 
+    }
+
+    $nrOfAvailableSlots = countAllocations($token, $module->getProjectId(),array("1"));
+    // 2 were assigned to randgroup 1. We expect 8 more to be available.
+    if($nrOfAvailableSlots != 8){
+        echo "The number of available slots after randomization was not 8 but was $nrOfAvailableSlots";
     }
 
     $testSet[0]->expected = '1'; //X
