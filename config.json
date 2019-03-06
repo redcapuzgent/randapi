@@ -7,7 +7,8 @@
 
 	"versions": [
 		{"0.0.1": "exploring redcap functionality"},
-		{"0.0.2": "use tokens to validate API privileges"}
+		{"0.0.2": "use tokens to validate API privileges"},
+		{"0.0.3": "action to count number of available records in the allocation table"}
 	],
 
 	"authors": [

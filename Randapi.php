@@ -159,10 +159,7 @@ class Randapi extends AbstractExternalModule
         if($rid) {
 
             foreach ($allocations as $allocation) {
-                $sourceFieldNames = array();
-                for ($i = 0; $i < sizeof($allocation->getSourceFields()); $i++) {
-                    $sourceFieldNames[$i] = "source_field" . ($i + 1);
-                }
+                $sourceFieldNames = $allocation->getSourceFieldNames();
 
                 // SQL Injection check
                 // -------------------
@@ -173,15 +170,12 @@ class Randapi extends AbstractExternalModule
                 // $allocation->getTargetField() should be escaped
                 $target_field = db_real_escape_string($allocation->getTargetField());
                 // $allocation->getSourceFields() should be escaped
-                $sourceFields = array();
-                foreach($allocation->getSourceFields() as $sourceField){
-                    array_push($sourceFields, db_real_escape_string($sourceField));
-                }
+                $sourceFieldValues = $allocation->getSourceFieldValues();
 
 
                 $query = "
                   insert into redcap_randomization_allocation(rid,project_status,target_field," . implode(',', $sourceFieldNames) . ")
-                  values($rid,$project_status,'$target_field','" . implode("','", $sourceFields) . "');";
+                  values($rid,$project_status,'$target_field','" . implode("','", $sourceFieldValues) . "');";
 
                 error_log("Executing query: $query");
                 if (!$this->query($query)) {
@@ -197,16 +191,10 @@ class Randapi extends AbstractExternalModule
      * @param $jsonObject
      * @throws RandapiException | Exception
      */
-    private function handleAddAllocation($jsonObject){
+    private function handleAddAllocation($jsonObject): void{
 
         if(!property_exists($jsonObject,"parameters")){
             throw new RandapiException("parameters property not found.");
-        }
-        if(!property_exists($jsonObject->parameters, "projectId")){
-            throw new RandapiException("parameters->projectId property not found.");
-        }
-        if(!is_numeric($jsonObject->parameters->projectId)){
-            throw new RandapiException("parameters->projectId is not numeric.");
         }
         if(!property_exists($jsonObject->parameters, "project_status")){
             throw new RandapiException("parameters->project_status property not found.");
@@ -229,7 +217,7 @@ class Randapi extends AbstractExternalModule
             array_push($allocations,RandomizationAllocation::fromstdClass($allocation));
         }
 
-        $this->addRecordsToAllocationTable($jsonObject->parameters->projectId,
+        $this->addRecordsToAllocationTable($this->getProjectId(),
             $jsonObject->parameters->project_status,
             $allocations);
     }
@@ -239,18 +227,12 @@ class Randapi extends AbstractExternalModule
      * @return string
      * @throws \RandapiException
      */
-    private function handleRandomization($jsonObject){
+    private function handleRandomization($jsonObject): string{
         if(!property_exists($jsonObject,"parameters")){
             throw new RandapiException("parameters property not found.");
         }
         if(!property_exists($jsonObject->parameters, "recordId")){
             throw new RandapiException("parameters->recordId property not found.");
-        }
-        if(!property_exists($jsonObject->parameters, "projectId")){
-            throw new RandapiException("parameters->projectId property not found.");
-        }
-        if(!is_numeric($jsonObject->parameters->projectId)){
-            throw new RandapiException("parameters->projectId is not numeric.");
         }
         if(!property_exists($jsonObject->parameters, "fields")){
             throw new RandapiException("parameters->fields property not found.");
@@ -279,10 +261,55 @@ class Randapi extends AbstractExternalModule
         }
         //randomizeRecord($recordId,$projectId,$fields=array(),$resultFieldName,$group_id='',$arm_name='Arm 1', $event_name='Event 1'){
         return $this->randomizeRecord($jsonObject->parameters->recordId,
-            $jsonObject->parameters->projectId,
+            $this->getProjectId(),
             $fields,
             $jsonObject->parameters->resultFieldName,
             $groupId,$armName,$eventName);
+    }
+
+    /**
+     * @param stdClass $jsonObject
+     * @return int
+     * @throws RandapiException
+     */
+    private function handleAvailableSlots(stdClass $jsonObject): int {
+        if(!property_exists($jsonObject,"parameters")){
+            throw new RandapiException("parameters property not found.");
+        }
+        if(!property_exists($jsonObject->parameters, "source_fields")){
+            throw new RandapiException("parameters->source_fields property not found.");
+        }
+
+        /**
+         * @var $source_fields string[]
+         */
+        $source_fields = $jsonObject->parameters->source_fields;
+
+        $sourceWhere = array();
+        for($i = 0; $i < sizeof($source_fields); $i++){
+            array_push($sourceWhere,"rra.source_field".($i+1)." = '".$source_fields[$i]."'");
+        }
+
+        $asQuery = "select count(*) as nrOfAvailableSlots
+                from redcap_randomization_allocation rra
+                join redcap_randomization rr on 
+                    rr.project_id = ".$this->getProjectId()." and
+                    rr.rid = rra.rid
+                where rra.is_used_by is null and
+                        ".implode(" and ",$sourceWhere);
+
+        if($ridQueryResult = $this->query($asQuery)) {
+            if ($row = $ridQueryResult->fetch_assoc()) {
+                $ridQueryResult->close();
+                return intval($row["nrOfAvailableSlots"]);
+            }else{
+                $ridQueryResult->close();
+                throw new RandapiException("query did not return a result: $asQuery");
+            }
+        }else{
+            throw new RandapiException("Could not execute query: $asQuery");
+        }
+
     }
 
     /**
@@ -302,6 +329,10 @@ class Randapi extends AbstractExternalModule
                         $foundAid =$this->handleRandomization($jsonObject);
                         echo json_encode("$foundAid");
                         break;
+                    case "availableSlots":
+                        $nrOfAvaibaleSlots = $this->handleAvailableSlots($jsonObject);
+                        echo json_encode($nrOfAvaibaleSlots);
+                        break;
                     default:
                         throw new RandapiException("Invalid Action was specified");
                 }
@@ -319,8 +350,12 @@ class Randapi extends AbstractExternalModule
     /**
      * @param stdClass $jsonObject
      * @return bool
+     * @throws RandapiException
      */
     public function checkToken(stdClass $jsonObject):bool {
+        if(!$this->getProjectId()){
+            throw new RandapiException("projectid was not set");
+        }
         if(property_exists($jsonObject,"token")){
             try {
                 $token = db_real_escape_string($jsonObject->token);
@@ -349,4 +384,5 @@ class Randapi extends AbstractExternalModule
             throw new RandapiException("Token property was not set");
         }
     }
+
 }
