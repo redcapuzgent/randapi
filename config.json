@@ -3,7 +3,7 @@
 
 	"namespace": "redcapuzgent\\Randapi",
 
-	"description": "An API to export randomization functionalities and perform additional actions associated with randomization.",
+	"description": "An API to export REDCap randomization functionality and perform additional actions associated with randomization.",
 
 	"versions": [
 		{"0.0.1": "exploring redcap functionality"},
