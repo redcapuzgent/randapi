@@ -1,8 +1,10 @@
 <?php
 
-namespace redcapuzgent\Randapi;
+namespace redcapuzgent\Randapi\model;
 
-class RandomizationField implements \JsonSerializable
+use \JsonSerializable;
+
+class RandomizationField implements JsonSerializable
 {
     /**
      * @var string
@@ -45,7 +47,7 @@ class RandomizationField implements \JsonSerializable
             property_exists($in,"value")){
             return new RandomizationField($in->key, $in->value);
         }else{
-            throw new \RandapiException("Could not create RandomizationField. Object does not have properties key and value");
+            throw new RandapiException("Could not create RandomizationField. Object does not have properties key and value");
         }
     }
 

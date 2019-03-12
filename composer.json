@@ -2,7 +2,8 @@
     "name": "redcapuzgent/randapi",
     "description": "An API to export randomization functionalities and perform additional actions associated with randomization.",
     "require": {
-        "phpcap/phpcap": "^0.3.2"
+        "phpcap/phpcap": "^0.3.2",
+        "ext-json": "*"
     },
     "license": "UNLICENSED",
     "authors": [
@@ -10,5 +11,10 @@
             "name": "Bram Gadeyne",
             "email": "bram.gadeyne@uzgent.be"
         }
-    ]
+    ],
+    "autoload": {
+        "psr-4": {
+            "redcapuzgent\\Randapi": "src/"
+        }
+    }
 }

@@ -3,6 +3,8 @@
 // https://localhost/redcap_v8.10.2/ExternalModules/?NOAUTH&prefix=Randapi&page=api
 // https://localhost/api/?type=module&prefix=Randapi&page=api&NOAUTH
 
+use redcapuzgent\Randapi\model\RandapiException;
+
 try{
 
     if ($_SERVER['REQUEST_METHOD'] == 'POST'){

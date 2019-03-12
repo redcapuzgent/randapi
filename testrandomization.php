@@ -1,11 +1,10 @@
 <?php
 
 require_once(__DIR__.DIRECTORY_SEPARATOR."vendor/autoload.php");
-require_once(__DIR__.DIRECTORY_SEPARATOR . "model/RandomizationField.php");
 require_once(__DIR__. "/test_utils/count_allocations.php");
 
 use IU\PHPCap\RedCapProject;
-use redcapuzgent\Randapi\RandomizationField;
+use redcapuzgent\Randapi\model\RandomizationField;
 
 
 try {

@@ -1,15 +1,15 @@
 <?php
 namespace redcapuzgent\Randapi;
 
-require_once __DIR__.DIRECTORY_SEPARATOR.'model/RandapiException.php';
-require_once __DIR__.DIRECTORY_SEPARATOR.'model/RandomizationAllocation.php';
-require_once __DIR__.DIRECTORY_SEPARATOR.'model/RandomizationField.php';
+require_once __DIR__.DIRECTORY_SEPARATOR."vendor/autoload.php";
 
-use ExternalModules\AbstractExternalModule;
-use Exception;
-use RandapiException;
-use Randomization;
-use stdClass;
+use \ExternalModules\AbstractExternalModule;
+use \Exception;
+use \Randomization;
+use \stdClass;
+use redcapuzgent\Randapi\model\RandomizationAllocation;
+use redcapuzgent\Randapi\model\RandomizationField;
+use redcapuzgent\Randapi\model\RandapiException;
 
 class Randapi extends AbstractExternalModule
 {
