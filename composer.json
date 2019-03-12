@@ -6,6 +6,8 @@
         "ext-json": "*"
     },
     "license": "UNLICENSED",
+    "homepage": "https://github.com/redcapuzgent/randapi",
+    "readme": "README.md",
     "authors": [
         {
             "name": "Bram Gadeyne",
@@ -16,5 +18,8 @@
         "psr-4": {
             "redcapuzgent\\Randapi": "src/"
         }
+    },
+    "support": {
+        "issues": "https://github.com/redcapuzgent/randapi/issues"
     }
 }
