@@ -1,5 +1,7 @@
 # API to allow usage of the RedCap Randomization from plugins
 
+[![Open Source Love](https://badges.frapsoft.com/os/mit/mit.svg?v=102)](https://github.com/ellerbrock/open-source-badge/) [![REDCap](https://img.shields.io/badge/REDCap-8.10%20LTS-blue.svg)]()
+
 ## Help
 
 The help page can be viewed by accessing https://localhost/api/?type=module&prefix=Randapi&page=api&pid=20&NOAUTH
