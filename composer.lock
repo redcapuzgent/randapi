@@ -4,20 +4,20 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "c9276a4598b2906a38940e71eac856a1",
+    "content-hash": "bc24207bf3e50f83fa18c6fcc9f2f074",
     "packages": [
         {
             "name": "phpcap/phpcap",
-            "version": "0.3.2",
+            "version": "0.3.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/aarenson/PHPCap.git",
-                "reference": "bc28965391bd40cc34ba4e33f7fb755d138e7dee"
+                "reference": "7af71a5481120f5efa1ad0f1bd640044b61286df"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/aarenson/PHPCap/zipball/bc28965391bd40cc34ba4e33f7fb755d138e7dee",
-                "reference": "bc28965391bd40cc34ba4e33f7fb755d138e7dee",
+                "url": "https://api.github.com/repos/aarenson/PHPCap/zipball/7af71a5481120f5efa1ad0f1bd640044b61286df",
+                "reference": "7af71a5481120f5efa1ad0f1bd640044b61286df",
                 "shasum": ""
             },
             "require": {
@@ -30,7 +30,7 @@
                 "erusev/parsedown": "1.6.2",
                 "kzykhys/php-csv-parser": "1.4.1",
                 "phpunit/phpunit": "5.7.15",
-                "squizlabs/php_codesniffer": "2.8.1"
+                "squizlabs/php_codesniffer": "3.2.3"
             },
             "type": "library",
             "autoload": {
@@ -46,7 +46,7 @@
             "keywords": [
                 "redcap"
             ],
-            "time": "2018-04-20T19:37:19+00:00"
+            "time": "2019-03-10T15:32:57+00:00"
         }
     ],
     "packages-dev": [],
