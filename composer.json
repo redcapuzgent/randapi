@@ -16,7 +16,7 @@
     ],
     "autoload": {
         "psr-4": {
-            "redcapuzgent\\Randapi": "src/"
+            "redcapuzgent\\Randapi\\": "src/"
         }
     },
     "support": {
