@@ -12,7 +12,9 @@ try{
         header('Content-Type: application/json');
 
         $jsonText = file_get_contents("php://input");
+        error_log("received text: $jsonText");
         $jsonObject = json_decode($jsonText, false);
+        error_log("received object: ".print_r($jsonObject,true));
         /**
          * @var $module \redcapuzgent\Randapi\Randapi
          */

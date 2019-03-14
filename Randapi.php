@@ -315,7 +315,7 @@ class Randapi extends AbstractExternalModule
     /**
      * @param stdClass $jsonObject
      * @param string $jsonText
-     * @throws \RandapiException
+     * @throws RandapiException
      */
     public function handleRequest(stdClass $jsonObject, string $jsonText):void{
         if($this->checkToken($jsonObject)){
