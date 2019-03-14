@@ -3,6 +3,8 @@
 // https://localhost/redcap_v8.10.2/ExternalModules/?NOAUTH&prefix=Randapi&page=api
 // https://localhost/api/?type=module&prefix=Randapi&page=api&NOAUTH
 
+use redcapuzgent\Randapi\model\RandapiException;
+
 try{
 
     if ($_SERVER['REQUEST_METHOD'] == 'POST'){
@@ -10,7 +12,9 @@ try{
         header('Content-Type: application/json');
 
         $jsonText = file_get_contents("php://input");
+        error_log("received text: $jsonText");
         $jsonObject = json_decode($jsonText, false);
+        error_log("received object: ".print_r($jsonObject,true));
         /**
          * @var $module \redcapuzgent\Randapi\Randapi
          */

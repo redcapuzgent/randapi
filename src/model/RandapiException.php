@@ -1,5 +1,11 @@
 <?php
 
+namespace redcapuzgent\Randapi\model;
+
+use \Exception;
+use \JsonSerializable;
+use \Throwable;
+
 class RandapiException extends Exception implements JsonSerializable
 {
     public function __construct(string $message = "", int $code = 0, Throwable $previous = null)

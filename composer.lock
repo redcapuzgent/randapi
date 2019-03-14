@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "bc24207bf3e50f83fa18c6fcc9f2f074",
+    "content-hash": "c1583d40f882af7bafcb1714e92d7dda",
     "packages": [
         {
             "name": "phpcap/phpcap",
@@ -55,6 +55,8 @@
     "stability-flags": [],
     "prefer-stable": false,
     "prefer-lowest": false,
-    "platform": [],
+    "platform": {
+        "ext-json": "*"
+    },
     "platform-dev": []
 }

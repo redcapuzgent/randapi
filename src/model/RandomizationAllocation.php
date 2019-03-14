@@ -1,12 +1,11 @@
 <?php
 
-namespace redcapuzgent\Randapi;
+namespace redcapuzgent\Randapi\model;
 
-require_once 'RandapiException.php';
+use \stdClass;
+use \JsonSerializable;
 
-use stdClass;
-
-class RandomizationAllocation implements \JsonSerializable
+class RandomizationAllocation implements JsonSerializable
 {
     /**
      * @var string[]
@@ -22,15 +21,15 @@ class RandomizationAllocation implements \JsonSerializable
      * RandomizationAllocation constructor.
      * @param string[] $source_fields Ordered list of source_field values
      * @param string $target_field The value for the target_field
-     * @throws Exception
+     * @throws RandapiException
      */
     public function __construct(array $source_fields, string $target_field)
     {
         if(is_null($source_fields) || sizeof($source_fields) < 1 || sizeof($source_fields) > 15){
-            throw new Exception("Invalid source_fields parameter");
+            throw new RandapiException("Invalid source_fields parameter");
         }
         if(is_null($target_field)){
-            throw new Exception("Invalid target_field parameter");
+            throw new RandapiException("Invalid target_field parameter");
         }
         $this->source_fields = $source_fields;
         $this->target_field = db_real_escape_string($target_field);
@@ -77,14 +76,14 @@ class RandomizationAllocation implements \JsonSerializable
     /**
      * @param stdClass $in
      * @return RandomizationAllocation
-     * @throws \RandapiException
+     * @throws RandapiException
      */
     public static function fromstdClass(stdClass $in){
         if(property_exists($in,"source_fields") &&
             property_exists($in,"target_field")){
             return new RandomizationAllocation($in->source_fields, $in->target_field);
         }else{
-            throw new \RandapiException("Could not create RandomizationAllocation. Object does not have properties source_fields and target_field");
+            throw new RandapiException("Could not create RandomizationAllocation. Object does not have properties source_fields and target_field");
         }
     }
 

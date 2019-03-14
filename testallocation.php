@@ -2,10 +2,11 @@
 
 // to run the test. Enable the module at project RandomizationTest level
 
-require_once(__DIR__ . "/model/RandomizationAllocation.php");
+require_once __DIR__.DIRECTORY_SEPARATOR."vendor/autoload.php";
+
 require_once(__DIR__. "/test_utils/count_allocations.php");
 
-use redcapuzgent\Randapi\RandomizationAllocation;
+use redcapuzgent\Randapi\model\RandomizationAllocation;
 
 try{
 
