@@ -34,7 +34,6 @@ class Randapi extends AbstractExternalModule
         global $redcap_version;
         $classesPath = __DIR__.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR."redcap_v$redcap_version".DIRECTORY_SEPARATOR."Classes".DIRECTORY_SEPARATOR;
         require_once($classesPath."Randomization.php");
-        require_once(__DIR__ . DIRECTORY_SEPARATOR."/model/RandomizationField.php");
 
         if(!defined(PROJECT_ID)){
             error_log("defining project id $projectId");
@@ -78,12 +77,12 @@ class Randapi extends AbstractExternalModule
             $query = "select target_field from redcap.redcap_randomization_allocation rra where rra.aid = $aid";
 
             $randomizationQueryResult = $this->query($query);
-            $randomizationResult = false;
+            $randomizationResult = null;
             if($row = $randomizationQueryResult->fetch_assoc()){
                 $randomizationResult = $row["target_field"];
             }
             $randomizationQueryResult->close();
-            if($randomizationResult){
+            if(!is_null($randomizationResult)){
                 // The randomization result cannot be changed so an insert should not fail because of an duplicate row exception.
                 // The API cannot be used to insert the randomization result
 
@@ -108,8 +107,9 @@ class Randapi extends AbstractExternalModule
                 join redcap.redcap_events_metadata md on 
                     a.arm_id = md.arm_id and
                     md.descrip = '$event_name'
-                where a.project_id = 20 and
+                where a.project_id = $projectId and
                     a.arm_name='$arm_name';";
+                error_log("Executing query $query");
                 if($this->query($query)){
                     error_log("Randomization result $randomizationResult for aid $aid successfully saved in record");
                     return $randomizationResult;
