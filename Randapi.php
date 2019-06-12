@@ -225,7 +225,7 @@ class Randapi extends AbstractExternalModule
     /**
      * @param $jsonObject
      * @return string
-     * @throws \RandapiException
+     * @throws RandapiException
      */
     private function handleRandomization($jsonObject): string{
         if(!property_exists($jsonObject,"parameters")){
