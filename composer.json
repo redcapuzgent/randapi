@@ -2,7 +2,7 @@
     "name": "redcapuzgent/randapi",
     "description": "An API to export randomization functionalities and perform additional actions associated with randomization.",
     "require": {
-        "phpcap/phpcap": "^0.3.2",
+        "phpcap/phpcap": "^0.3.3",
         "ext-json": "*"
     },
     "license": "UNLICENSED",
