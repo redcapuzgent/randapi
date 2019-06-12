@@ -9,7 +9,8 @@
 		{"0.0.1": "exploring redcap functionality"},
 		{"0.0.2": "use tokens to validate API privileges"},
 		{"0.0.3": "action to count number of available records in the allocation table"},
-		{"0.0.4": "Fix for issue https://github.com/redcapuzgent/randapi/issues/6, update phpcap to 0.3.3"}
+		{"0.0.4": "Fix for issue https://github.com/redcapuzgent/randapi/issues/6, update phpcap to 0.3.3"},
+		{"0.0.5": "Add findAID method"}
 	],
 
 	"authors": [
