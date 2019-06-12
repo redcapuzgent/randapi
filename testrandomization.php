@@ -6,6 +6,73 @@ require_once(__DIR__. "/test_utils/count_allocations.php");
 use IU\PHPCap\RedCapProject;
 use redcapuzgent\Randapi\model\RandomizationField;
 
+function randomizeRecord($projectid, $token, $record_id,$fields){
+    $url = APP_PATH_WEBROOT_FULL."api/?type=module&prefix=Randapi&page=api&NOAUTH&pid=$projectid";
+    $postfields = [
+        "action"=>"randomizeRecord",
+        "token"=>$token,
+        "parameters"=> [
+            "recordId" => $record_id,
+            "fields" => $fields,
+            "resultFieldName"=>"assignedto"
+        ]
+    ];
+
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, $url);
+    curl_setopt($ch, CURLOPT_POST, 1);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($postfields));
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); // Set to TRUE for production use
+    curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false); // Set to TRUE for production use
+    curl_setopt($ch, CURLOPT_VERBOSE, 0);
+    curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+    curl_setopt($ch, CURLOPT_AUTOREFERER, true);
+    curl_setopt($ch, CURLOPT_MAXREDIRS, 10);
+    curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
+    curl_setopt($ch, CURLOPT_FRESH_CONNECT, 1);
+
+    $output = curl_exec($ch);
+    if(!$output){
+        echo 'Curl error: ' . curl_error($ch)."\n";
+    }else{
+    }
+    curl_close($ch);
+    return json_decode($output);
+}
+
+
+function findAid($projectid, $token, $record_id){
+    $url = APP_PATH_WEBROOT_FULL."api/?type=module&prefix=Randapi&page=api&NOAUTH&pid=$projectid";
+    $postfields = [
+        "action"=>"findAID",
+        "token"=>$token,
+        "parameters"=> $record_id
+    ];
+
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, $url);
+    curl_setopt($ch, CURLOPT_POST, 1);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($postfields));
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); // Set to TRUE for production use
+    curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false); // Set to TRUE for production use
+    curl_setopt($ch, CURLOPT_VERBOSE, 0);
+    curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+    curl_setopt($ch, CURLOPT_AUTOREFERER, true);
+    curl_setopt($ch, CURLOPT_MAXREDIRS, 10);
+    curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
+    curl_setopt($ch, CURLOPT_FRESH_CONNECT, 1);
+
+    $output = curl_exec($ch);
+    if(!$output){
+        echo 'Curl error: ' . curl_error($ch)."\n";
+    }else{
+    }
+    curl_close($ch);
+    return json_decode($output);
+}
+
 
 try {
 
@@ -80,41 +147,15 @@ try {
         $fields = array(new RandomizationField("randgroup", $test->randgroup));
         try {
 
-            $url = APP_PATH_WEBROOT_FULL."api/?type=module&prefix=Randapi&page=api&NOAUTH&pid=".$module->getProjectId();
-            $postfields = [
-                "action"=>"randomizeRecord",
-                "token"=>$token,
-                "parameters"=> [
-                    "recordId" => $test->record_id,
-                    "fields" => $fields,
-                    "resultFieldName"=>"assignedto"
-                ]
-            ];
-
-            $ch = curl_init();
-            curl_setopt($ch, CURLOPT_URL, $url);
-            curl_setopt($ch, CURLOPT_POST, 1);
-            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($postfields));
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); // Set to TRUE for production use
-            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false); // Set to TRUE for production use
-            curl_setopt($ch, CURLOPT_VERBOSE, 0);
-            curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-            curl_setopt($ch, CURLOPT_AUTOREFERER, true);
-            curl_setopt($ch, CURLOPT_MAXREDIRS, 10);
-            curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
-            curl_setopt($ch, CURLOPT_FRESH_CONNECT, 1);
-
-            $output = curl_exec($ch);
-            if(!$output){
-                echo 'Curl error: ' . curl_error($ch)."\n";
-            }else{
-            }
-            curl_close($ch);
-            $assignedAid = json_decode($output);
-
-            error_log("assigned for records $test->record_id aid: $output (decoded $assignedAid)");
+            $assignedAid = randomizeRecord($module->getProjectId(), $token, $test->record_id,$fields);
+            error_log("assigned for records $test->record_id aid: $assignedAid");
             $assignedAids[$test->record_id - 1] = $assignedAid;
+
+            $foundAid = findAid($module->getProjectId(), $token, $test->record_id);
+            error_log("found aid $foundAid for ".$test->record_id.".");
+            echo "found aid $foundAid for ".$test->record_id."<br />";
+
+
         } catch (Exception $e) {
             error_log("error while randomizing: " . $e->getMessage() . " " . $e->getTraceAsString());
         }

@@ -225,7 +225,7 @@ class Randapi extends AbstractExternalModule
     /**
      * @param $jsonObject
      * @return string
-     * @throws \RandapiException
+     * @throws RandapiException
      */
     private function handleRandomization($jsonObject): string{
         if(!property_exists($jsonObject,"parameters")){
@@ -333,6 +333,10 @@ class Randapi extends AbstractExternalModule
                         $nrOfAvaibaleSlots = $this->handleAvailableSlots($jsonObject);
                         echo json_encode($nrOfAvaibaleSlots);
                         break;
+                    case "findAID":
+                        $aid = $this->handleFindAID($jsonObject);
+                        echo json_encode($aid);
+                        break;
                     default:
                         throw new RandapiException("Invalid Action was specified");
                 }
@@ -352,7 +356,7 @@ class Randapi extends AbstractExternalModule
      * @return bool
      * @throws RandapiException
      */
-    public function checkToken(stdClass $jsonObject):bool {
+    private function checkToken(stdClass $jsonObject):bool {
         if(!$this->getProjectId()){
             throw new RandapiException("projectid was not set");
         }
@@ -382,6 +386,43 @@ class Randapi extends AbstractExternalModule
             }
         }else{
             throw new RandapiException("Token property was not set");
+        }
+    }
+
+    /**
+     * @param stdClass $jsonObject
+     * @return int
+     * @throws RandapiException
+     */
+    private function handleFindAID(stdClass $jsonObject): int {
+        if(!property_exists($jsonObject,"parameters")){
+            throw new RandapiException("parameters property not found.");
+        }
+
+        try {
+
+            $recordid = db_real_escape_string($jsonObject->parameters);
+
+            $aidQuery = "
+                select rra.aid
+                from redcap_projects rp 
+                join redcap_randomization rr on rr.project_id = rp.project_id
+                join redcap_randomization_allocation rra on 
+                    rr.rid = rra.rid and
+                    rra.project_status = rp.status and
+                    rra.is_used_by = '$recordid'
+                where rp.project_id = ".$this->getProjectId();
+
+            $aidQueryResult = $this->query($aidQuery);
+
+            $res = $aidQueryResult->fetch_object();
+            if (!is_null($res)) {
+                return $res->aid;
+            } else {
+                return new RandapiException("recordid is not found",400);
+            }
+        }catch(\Exception $e){
+            return new RandapiException("Could not execute handleFindAID",500,$e);
         }
     }
 
