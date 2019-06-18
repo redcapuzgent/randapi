@@ -99,7 +99,7 @@
             <h2>findAID</h2>
             <p>Find the redcap_randomization_allocation aid value where a certain record is used.</p>
             <h3>parameters:</h3>
-            The value should be a recordid
+            <p>The value should be a recordid</p>
             <h3>Example:</h3>
             <p>This example retrieves the aid for a record with record id 1.</p>
 
@@ -107,6 +107,23 @@
                 <code>
                     {
                         "action":"findAID",
+                        "token":"F33F6876ADC5EC63CE79EBFF88FF0092",
+                        "parameters":"1"
+                    }
+                </code>
+            </pre>
+
+            <h2>undoRandomization</h2>
+            <p>Undo the randomization for a certain record in the redcap_randomization_allocation table.</p>
+            <h3>parameters:</h3>
+            <p>The value should be a recordid</p>
+            <h3>Example:</h3>
+            <p>This example undoes the allocation of record 1</p>
+
+            <pre>
+                <code>
+                    {
+                        "action":"undoRandomization",
                         "token":"F33F6876ADC5EC63CE79EBFF88FF0092",
                         "parameters":"1"
                     }
