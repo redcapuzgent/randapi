@@ -62,6 +62,7 @@
 
             <pre>
                 <code>
+                    {
                         "action":"randomizeRecord",
                         "token":"F33F6876ADC5EC63CE79EBFF88FF0092",
                         "parameters":{
@@ -85,11 +86,29 @@
 
             <pre>
                 <code>
+                    {
                         "action":"randomizeRecord",
                         "token":"F33F6876ADC5EC63CE79EBFF88FF0092",
                         "parameters":{
                             "source_fields":["1","2"]
                         }
+                    }
+                </code>
+            </pre>
+
+            <h2>findAID</h2>
+            <p>Find the redcap_randomization_allocation aid value where a certain record is used.</p>
+            <h3>parameters:</h3>
+            The value should be a recordid
+            <h3>Example:</h3>
+            <p>This example retrieves the aid for a record with record id 1.</p>
+
+            <pre>
+                <code>
+                    {
+                        "action":"findAID",
+                        "token":"F33F6876ADC5EC63CE79EBFF88FF0092",
+                        "parameters":"1"
                     }
                 </code>
             </pre>
