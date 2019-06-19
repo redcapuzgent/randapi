@@ -74,7 +74,7 @@ class Randapi extends AbstractExternalModule
 
             // $aid is a method result
 
-            $query = "select target_field from redcap.redcap_randomization_allocation rra where rra.aid = $aid";
+            $query = "select target_field from redcap_randomization_allocation rra where rra.aid = $aid";
 
             $randomizationQueryResult = $this->query($query);
             $randomizationResult = null;
@@ -101,10 +101,10 @@ class Randapi extends AbstractExternalModule
                 $arm_name = db_real_escape_string($arm_name);
 
                 $query = "
-                insert into redcap.redcap_data(project_id, event_id, record, field_name, `value`)
+                insert into redcap_data(project_id, event_id, record, field_name, `value`)
                 select $projectId as project_id, md.event_id, '$recordId' as record, '$resultFieldName' as field_name, '$randomizationResult' as `value`
-                from redcap.redcap_events_arms a
-                join redcap.redcap_events_metadata md on 
+                from redcap_events_arms a
+                join redcap_events_metadata md on 
                     a.arm_id = md.arm_id and
                     md.descrip = '$event_name'
                 where a.project_id = $projectId and
@@ -140,7 +140,7 @@ class Randapi extends AbstractExternalModule
 
         // $projectId is typed in method signature
 
-        $ridQuery = "select rid from redcap.redcap_randomization where project_id = $projectId";
+        $ridQuery = "select rid from redcap_randomization where project_id = $projectId";
         $rid = false;
         try{
             if($ridQueryResult = $this->query($ridQuery)){
