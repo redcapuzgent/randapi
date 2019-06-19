@@ -337,6 +337,10 @@ class Randapi extends AbstractExternalModule
                         $aid = $this->handleFindAID($jsonObject);
                         echo json_encode($aid);
                         break;
+                    case "undoRandomization":
+                        $this->handleUndoRandomization($jsonObject);
+                        echo json_encode("success");
+                        break;
                     default:
                         throw new RandapiException("Invalid Action was specified");
                 }
@@ -413,6 +417,8 @@ class Randapi extends AbstractExternalModule
                     rra.is_used_by = '$recordid'
                 where rp.project_id = ".$this->getProjectId();
 
+            error_log("executing aidQuery $aidQuery");
+
             $aidQueryResult = $this->query($aidQuery);
 
             $res = $aidQueryResult->fetch_object();
@@ -424,6 +430,46 @@ class Randapi extends AbstractExternalModule
         }catch(\Exception $e){
             return new RandapiException("Could not execute handleFindAID",500,$e);
         }
+    }
+
+    /**
+     * @param stdClass $jsonObject
+     * @throws RandapiException
+     */
+    private function handleUndoRandomization(stdClass $jsonObject){
+        if(!property_exists($jsonObject,"parameters")){
+            throw new RandapiException("parameters property not found.");
+        }
+        $recordid = $jsonObject->parameters;
+        $aid = $this->handleFindAID($jsonObject);
+        if($aid){
+            $ok = $this->query("
+                delete d
+                from redcap_randomization_allocation ra
+                join redcap_randomization r on r.rid = ra.rid  
+                join redcap_data d on 
+                    d.project_id = r.project_id and 
+                    d.field_name = r.target_field and
+                    (r.target_event is null or d.event_id = r.target_event) and
+                    d.record = ra.is_used_by
+                where ra.aid = $aid
+            ");
+            if($ok){
+                $ok = $this->query("
+                    update redcap_randomization_allocation 
+                    set is_used_by = null 
+                    where aid = $aid
+                ");
+                if(!$ok){
+                    throw new RandapiException("Could not unset allocation record for record $recordid and aid $aid");
+                }
+            }else{
+                throw new RandapiException("Could not delete data record for record $recordid and aid $aid");
+            }
+        }else{
+            throw new RandapiException("Could not find aid for record $recordid");
+        }
+
     }
 
 }
