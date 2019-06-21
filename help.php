@@ -129,6 +129,44 @@
                     }
                 </code>
             </pre>
+
+            <h2>changeSources</h2>
+            <p>Due to wrong registration, it might be necessary to change the source fields that are used to randomize a record.</p>
+            <p>If possible, another allocation record for the new source combination will be used that maintains the current assigned group.</p>
+            <p>If no such records exist, there is a possibility to provide additional allocation records</p>
+
+            <h3>parameters:</h3>
+            <ul>
+                <li><b>recordId</b>: The record that we want to change source fields for</li>
+                <li><b>fields</b>: An array of RandomizationFields. (see <a href="https://github.com/redcapuzgent/randapi/blob/master/typescript/RandomizationField.ts" >RandomizationFields.ts</a>)</li>
+                <li><b>allocations</b>: A list of new allocation records, in case there is no record available anymore.
+                <li><b>groupId</b>: (optional) The DAG identifier. default = '' (none)</li>
+                <li><b>armName</b>: (optional) The name of the arm. default = 'Arm 1'</li>
+                <li><b>eventName</b>: (optional) The name of the event. default = 'Event 1'</li>
+            </ul>
+            <h3>Example:</h3>
+            <p>This examples changes the source fields for record 1 to randgroup 2 (it was 1 previously. In case there is no allocation record available anymore, we cant the algorithm to add these 4 new allocations.</p>
+
+            <pre>
+                <code>
+                    {
+                        "action":"changeSources",
+                        "token":"F33F6876ADC5EC63CE79EBFF88FF0092",
+                        "parameters":{
+                            "recordId":1,
+                            "fields":[
+                                {"key":"randgroup","value":"2"}
+                            ],
+                            "allocations":[
+                                {"source_fields":["2"],"target_field":"1"},
+                                {"source_fields":["2"],"target_field":"2"},
+                                {"source_fields":["2"],"target_field":"1"},
+                                {"source_fields":["2"],"target_field":"2"},
+                            ]
+                        }
+                    }
+                </code>
+            </pre>
         </div>
     </body>
 </html>
