@@ -5,6 +5,7 @@ require_once(__DIR__. "/test_utils/count_allocations.php");
 
 use IU\PHPCap\RedCapProject;
 use redcapuzgent\Randapi\model\RandomizationField;
+use redcapuzgent\Randapi\model\RandomizationAllocation;
 
 /**
  * @param int $projectid
@@ -60,6 +61,50 @@ function undoRandomization(int $projectid, string $token, string $record_id){
         "action"=>"undoRandomization",
         "token"=>$token,
         "parameters"=> $record_id
+    ];
+
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, $url);
+    curl_setopt($ch, CURLOPT_POST, 1);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($postfields));
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); // Set to TRUE for production use
+    curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false); // Set to TRUE for production use
+    curl_setopt($ch, CURLOPT_VERBOSE, 0);
+    curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+    curl_setopt($ch, CURLOPT_AUTOREFERER, true);
+    curl_setopt($ch, CURLOPT_MAXREDIRS, 10);
+    curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
+    curl_setopt($ch, CURLOPT_FRESH_CONNECT, 1);
+
+    $output = curl_exec($ch);
+    if(!$output){
+        echo 'Curl error: ' . curl_error($ch)."\n";
+    }else{
+    }
+    curl_close($ch);
+    return json_decode($output);
+}
+
+/**
+ * @param int $projectid
+ * @param string $token
+ * @param string $record_id
+ * @param RandomizationField[] $fields
+ * @param RandomizationAllocation[] $allocations
+ * @return int
+ */
+function changeSourceFields(int $projectid, string $token, string $record_id,array $fields, array $allocations){
+    $url = APP_PATH_WEBROOT_FULL."api/?type=module&prefix=Randapi&page=api&NOAUTH&pid=$projectid";
+    $postfields = [
+        "action"=>"changeSources",
+        "token"=>$token,
+        "parameters"=> [
+            "recordId" => $record_id,
+            "fields" => $fields,
+            //"groupId"=>"" // in this test there are nog DAGS defined
+            "allocations" => $allocations
+        ]
     ];
 
     $ch = curl_init();
@@ -237,7 +282,7 @@ try {
         $i++;
     }
 
-    // test undo randomization for record 0
+    // test undo randomization for record 1
     if(undoRandomization($module->getProjectId(), $token, $testSet[0]->record_id)){
         echo "Method reports successfull undo of randomization for record 1";
         $testSet[0]->expected = ''; //empty
@@ -247,6 +292,22 @@ try {
         }else{
             echo "assignedto is not empty but was '".$addaptedRecords[0]["addignedto"]."' <br/>";
         }
+    }
+
+    // test change of the source field for record 2. Changing randgroup from 1 to 2. Expect the target value to be still 2
+    $testSet[1]->randgroup = 2;
+    $fields = array(new RandomizationField("randgroup", $testSet[1]->randgroup));
+    $allocations = array();
+    $allocations[0] = new RandomizationAllocation(array("2"),"1");
+    $allocations[1] = new RandomizationAllocation(array("2"),"2");
+    $newAid = changeSourceFields($module->getProjectId(), $token, "2", $fields, $allocations);
+    echo "received new aid $newAid</br>";
+
+    $addaptedRecords = $project->exportRecords('php','flat',null,array("record_id","assignedto","randgroup"),null, null, "[record_id] = '2'");
+    if($addaptedRecords[0]["assignedto"] != "2" ||  $addaptedRecords[0]["randgroup"] != "2"){
+        echo "Incorrect data after changeSourceFields. assignedto is '".$addaptedRecords[0]["assignedto"]."' expected 2, randgroup is '".$addaptedRecords[0]["randgroup"]."' expected 2</br>";
+    }else{
+        echo "Correct data after changeSourceFields";
     }
 
 
