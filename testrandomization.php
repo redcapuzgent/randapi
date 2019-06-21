@@ -6,7 +6,14 @@ require_once(__DIR__. "/test_utils/count_allocations.php");
 use IU\PHPCap\RedCapProject;
 use redcapuzgent\Randapi\model\RandomizationField;
 
-function randomizeRecord($projectid, $token, $record_id,$fields){
+/**
+ * @param int $projectid
+ * @param string $token
+ * @param string $record_id
+ * @param RandomizationField[] $fields
+ * @return mixed
+ */
+function randomizeRecord(int $projectid, string $token, string $record_id,array $fields){
     $url = APP_PATH_WEBROOT_FULL."api/?type=module&prefix=Randapi&page=api&NOAUTH&pid=$projectid";
     $postfields = [
         "action"=>"randomizeRecord",
@@ -41,8 +48,50 @@ function randomizeRecord($projectid, $token, $record_id,$fields){
     return json_decode($output);
 }
 
+/**
+ * @param $projectid int
+ * @param $token string
+ * @param $record_id string
+ * @return bool
+ */
+function undoRandomization(int $projectid, string $token, string $record_id){
+    $url = APP_PATH_WEBROOT_FULL."api/?type=module&prefix=Randapi&page=api&NOAUTH&pid=$projectid";
+    $postfields = [
+        "action"=>"undoRandomization",
+        "token"=>$token,
+        "parameters"=> $record_id
+    ];
 
-function findAid($projectid, $token, $record_id){
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, $url);
+    curl_setopt($ch, CURLOPT_POST, 1);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($postfields));
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); // Set to TRUE for production use
+    curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false); // Set to TRUE for production use
+    curl_setopt($ch, CURLOPT_VERBOSE, 0);
+    curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+    curl_setopt($ch, CURLOPT_AUTOREFERER, true);
+    curl_setopt($ch, CURLOPT_MAXREDIRS, 10);
+    curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
+    curl_setopt($ch, CURLOPT_FRESH_CONNECT, 1);
+
+    $output = curl_exec($ch);
+    if(!$output){
+        echo 'Curl error: ' . curl_error($ch)."\n";
+    }else{
+    }
+    curl_close($ch);
+    return json_decode($output);
+}
+
+/**
+ * @param int $projectid
+ * @param string $token
+ * @param string $record_id
+ * @return mixed
+ */
+function findAid(int $projectid, string $token, string $record_id){
     $url = APP_PATH_WEBROOT_FULL."api/?type=module&prefix=Randapi&page=api&NOAUTH&pid=$projectid";
     $postfields = [
         "action"=>"findAID",
@@ -187,6 +236,22 @@ try {
         }
         $i++;
     }
+
+    // test undo randomization for record 0
+    if(undoRandomization($module->getProjectId(), $token, $testSet[0]->record_id)){
+        echo "Method reports successfull undo of randomization for record 1";
+        $testSet[0]->expected = ''; //empty
+        $addaptedRecords = $project->exportRecords('php','flat',null,array("record_id","assignedto"),null, null, "[record_id] = '1'");
+        if($addaptedRecords[0]["addignedto"] == ""){
+            echo "assignedto is indeed empty <br/>";
+        }else{
+            echo "assignedto is not empty but was '".$addaptedRecords[0]["addignedto"]."' <br/>";
+        }
+    }
+
+
+
+
 
 }catch(RandException $e){
     error_log("error while executing testrandomization: " . $e->getMessage() . " " . $e->getTraceAsString());
