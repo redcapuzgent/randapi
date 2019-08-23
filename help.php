@@ -167,6 +167,42 @@
                     }
                 </code>
             </pre>
+
+            <h2>changeTarget</h2>
+            <p>In limited cases it might be necessary to change the outcome of the randomization. E.g. in an automated process a record was assigned to a certain target group. Due to some manual changes, the record is unrandomized. Correcting the error and randomizing the record again, results in a different target value.</p>
+            <p>If possible, another allocation record for the preferred target will be used that maintains the current assigned sources.</p>
+            <p>If no such records exist, there is a possibility to provide additional allocation records</p>
+
+            <h3>parameters:</h3>
+            <ul>
+                <li><b>recordId</b>: The record that we want to change source fields for</li>
+                <li><b>target</b>: The new target value</li>
+                <li><b>allocations</b>: A list of new allocation records, in case there is no record available anymore.
+                <li><b>groupId</b>: (optional) The DAG identifier. default = '' (none)</li>
+                <li><b>armName</b>: (optional) The name of the arm. default = 'Arm 1'</li>
+                <li><b>eventName</b>: (optional) The name of the event. default = 'Event 1'</li>
+            </ul>
+            <h3>Example:</h3>
+            <p>This examples changes the target for record 1 to assignedto A. In case there is no allocation record available anymore, we allow the algorithm to add these 4 new allocations.</p>
+
+            <pre>
+                <code>
+                    {
+                        "action":"changeTarget",
+                        "token":"F33F6876ADC5EC63CE79EBFF88FF0092",
+                        "parameters":{
+                            "recordId":1,
+                            "target":'A',
+                            "allocations":[
+                                {"source_fields":["2"],"target_field":"1"},
+                                {"source_fields":["2"],"target_field":"2"},
+                                {"source_fields":["2"],"target_field":"1"},
+                                {"source_fields":["2"],"target_field":"2"},
+                            ]
+                        }
+                    }
+                </code>
+            </pre>
         </div>
     </body>
 </html>
