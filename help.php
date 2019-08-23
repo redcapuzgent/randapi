@@ -145,7 +145,7 @@
                 <li><b>eventName</b>: (optional) The name of the event. default = 'Event 1'</li>
             </ul>
             <h3>Example:</h3>
-            <p>This examples changes the source fields for record 1 to randgroup 2 (it was 1 previously. In case there is no allocation record available anymore, we cant the algorithm to add these 4 new allocations.</p>
+            <p>This examples changes the source fields for record 1 to randgroup 2 (it was 1 previously. In case there is no allocation record available anymore, we allow the algorithm to add these 4 new allocations.</p>
 
             <pre>
                 <code>
