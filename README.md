@@ -4,13 +4,13 @@
 
 ## Help
 
-The help page can be viewed by accessing https://localhost/api/?type=module&prefix=Randapi&page=api&pid=20&NOAUTH
+The help page can be viewed by accessing https://localhost/api/?type=module&prefix=randapi&page=api&pid=20
 
 ## Randomization Test
 
 A test for this API was written in testrandomization.php.
 
-The test can be executed by calling url https://localhost/api/?type=module&prefix=Randapi&page=testrandomization&pid=20&NOAUTH&token=F33F6876ADC5EC63CE79EBFF88FF0092
+The test can be executed by calling url https://localhost/api/?type=module&prefix=randapi&page=testrandomization&pid=20&NOAUTH&token=F33F6876ADC5EC63CE79EBFF88FF0092
 
 It requires:
 
@@ -33,4 +33,4 @@ The allocation test adds 6 new allocations to the allocation table. It assumes t
 
 You can execute it by altering the url below to your configuration.
 
-https://localhost/api/?type=module&prefix=Randapi&page=testallocation&pid=20&NOAUTH&token=F33F6876ADC5EC63CE79EBFF88FF0092
+https://localhost/api/?type=module&prefix=randapi&page=testallocation&pid=20&NOAUTH&token=F33F6876ADC5EC63CE79EBFF88FF0092
