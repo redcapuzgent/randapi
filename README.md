@@ -1,6 +1,6 @@
 # API to allow usage of the RedCap Randomization from plugins
 
-[![Open Source Love](https://badges.frapsoft.com/os/mit/mit.svg?v=102)](https://github.com/ellerbrock/open-source-badge/) [![REDCap](https://img.shields.io/badge/REDCap-8.10%20LTS-blue.svg)]()
+[![Open Source Love](https://badges.frapsoft.com/os/mit/mit.svg?v=102)](https://github.com/ellerbrock/open-source-badge/) [![REDCap](https://img.shields.io/badge/REDCap-9.1%20LTS-blue.svg)]()
 
 ## Help
 
