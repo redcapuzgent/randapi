@@ -14,7 +14,8 @@
 		{"0.0.6": "Add unrandomize method"},
 		{"0.0.7": "Bugfix release. Remove fixed database schema name"},
 		{"0.0.8": "Add changeSources method"},
-		{"0.0.9": "Add changeTarget method"}
+		{"0.0.9": "Add changeTarget method"},
+		{"0.0.10": "Add readAllocations en readConfiguration"}
 	],
 
 	"authors": [

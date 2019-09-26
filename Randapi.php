@@ -14,6 +14,8 @@ use redcapuzgent\Randapi\model\RandapiException;
 class Randapi extends AbstractExternalModule
 {
 
+    private $contentType = "json";
+
     public function __construct(){
         parent::__construct();
     }
@@ -649,12 +651,40 @@ class Randapi extends AbstractExternalModule
                         $newAid = $this->handleChangeTarget($jsonObject);
                         echo json_encode($newAid);
                         break;
+                    case "readConfiguration": $this->readConfiguration($jsonObject);
+                        break;
+                    case "readAllocations": $this->readAllocations($jsonObject);
+                        break;
                     default:
                         throw new RandapiException("Invalid Action was specified");
                 }
             }else{
                 http_response_code(500);
                 $exception = new RandapiException("Invalid jsonObject was posted: $jsonText");
+                echo json_encode($exception);
+            }
+        }else{
+            error_log("incorrect token");
+            throw new RandapiException("You don't have sufficient privileges to access this api.",500);
+        }
+    }
+
+    public function handleGetRequest(){
+        $params = new stdClass();
+        $params->token = $_GET["token"];
+        if($this->checkToken($params)){
+            if(isset($_GET["action"]) && isset($_GET["pid"])){
+                switch($_GET["action"]){
+                    case "readConfiguration": $this->readConfiguration();
+                        break;
+                    case "readAllocations": $this->readAllocations();
+                        break;
+                    default:
+                        throw new RandapiException("Invalid Action was specified");
+                }
+            }else{
+                http_response_code(500);
+                $exception = new RandapiException("No action or pid was set");
                 echo json_encode($exception);
             }
         }else{
@@ -906,6 +936,83 @@ class Randapi extends AbstractExternalModule
             $groupId,
             $armName,
             $eventName);
+    }
+
+    /**
+     *
+     */
+    private function readConfiguration(){
+        $configQuery = $this->query("select r.*
+            from redcap_randomization r
+            where r.project_id = ".$this->getProjectId().";");
+        $ret = array();
+        while($row = $configQuery->fetch_assoc()){
+            foreach($row as $key=>$value){
+                if(!key_exists($key,$ret)){
+                    $ret[$key]=array();
+                }
+                array_push($ret[$key],$value);
+            }
+        }
+        $this->printCsv($ret);
+    }
+
+    /**
+     * @throws RandapiException
+     */
+    private function readAllocations(){
+        if(!isset($_GET["status"])){
+            error_log("parameter status not found.");
+            throw new RandapiException("parameter status not found.");
+        }
+
+        $allocationsQuery = $this->query("select a.*
+            from redcap_randomization r
+            join redcap_randomization_allocation a on
+                a.rid = r.rid and
+                a.project_status = ".$_GET["status"]."
+            where r.project_id = ".$this->getProjectId().";");
+        $ret = array();
+        while($row = $allocationsQuery->fetch_assoc()){
+            foreach($row as $key=>$value){
+                if(!key_exists($key,$ret)){
+                    $ret[$key]=array();
+                }
+                array_push($ret[$key],$value);
+            }
+        }
+        $this->printCsv($ret);
+    }
+
+    /**
+     * @param array $ret a map with key, the column name and value an array with values for each line.
+     */
+    private function printCsv(array $ret){
+        $this->setHeaderCSV();
+        // assume each array has an equal nr of rows
+        $nrOfRow = sizeof($ret[array_keys($ret)[0]]);
+        $keys = array_keys($ret);
+        echo implode(";",$keys)."\r\n";
+        for($i = 0; $i<$nrOfRow;$i++){
+            $line = array();
+            foreach($keys as $key){
+                array_push($line, $ret[$key][$i]);
+            }
+            echo implode(";",$line)."\r\n";
+        }
+    }
+
+    private function setHeaderCSV(){
+        $this->contentType = "csv";
+    }
+
+    public function setHeaders(){
+        if($this->contentType == "json"){
+            header("Content-Type: application/json");
+        }else if($this->contentType == "csv"){
+            header("Content-Type: application/csv");
+            header("Content-Disposition: attachment;filename=export.csv");
+        }
     }
 
 }

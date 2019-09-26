@@ -9,8 +9,6 @@ try{
 
     if ($_SERVER['REQUEST_METHOD'] == 'POST'){
 
-        header('Content-Type: application/json');
-
         $jsonText = file_get_contents("php://input");
         error_log("received text: $jsonText");
         $jsonObject = json_decode($jsonText, false);
@@ -19,6 +17,10 @@ try{
          * @var $module \redcapuzgent\Randapi\Randapi
          */
         $module->handleRequest($jsonObject,$jsonText);
+        $module->setHeaders();
+    }else if($_SERVER['REQUEST_METHOD'] == 'GET' && isset($_GET["action"])){
+        $module->handleGetRequest();
+        $module->setHeaders();
     }else{
         include('help.php');
     }

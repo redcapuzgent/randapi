@@ -203,6 +203,18 @@
                     }
                 </code>
             </pre>
+
+            <h2>readConfiguration</h2>
+            <p>This method must be executed in a GET request and extracts the randomization configuration settings from REDCap for the given project</p>
+            <p>The API exports this configuration in a CSV format.</p>
+            <p>Example URL: https://localhost/api/?type=module&prefix=randapi&page=api&pid=19&NOAUTH&token=F33F6876ADC5EC63CE79EBFF88FF0092&action=readConfiguration</p>
+
+            <h2>readAllocations</h2>
+            <p>This method must be executed in a GET request and extracts the allocation table for the given project (and status) from REDCap.</p>
+            <p>The status parameter is required. The value 0 van be passed for projects in development status and 1 for projects with a production status.</p>
+            <p>The API exports this allocations in a CSV format.</p>
+            <p>Example URL: https://localhost/api/?type=module&prefix=randapi&page=api&pid=19&NOAUTH&token=F33F6876ADC5EC63CE79EBFF88FF0092&action=readAllocations&status=0</p>
+
         </div>
     </body>
 </html>
